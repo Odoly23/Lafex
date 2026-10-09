@@ -5,6 +5,8 @@ from django.db import IntegrityError, transaction
 from django.db.models import F
 from django.utils import timezone
 
+from config.models import SystemSetting
+
 from .models import Entitlement, Plan, UsageDay, Voucher
 
 
@@ -47,8 +49,14 @@ def redeem(user, raw_code):
 	return new_exp
 
 
+def has_access(user):
+	"""Akses penuh: paket aktif, atau sistem sedang dalam mode gratis (admin mematikan 'presiza pakote')."""
+	return (not SystemSetting.load().payments_required) or is_active(user)
+
+
 def daily_limit(user):
-	return settings.PAID_TURNS_PER_DAY if is_active(user) else settings.FREE_TURNS_PER_DAY
+	s = SystemSetting.load()
+	return s.paid_turns_per_day if has_access(user) else s.free_turns_per_day
 
 
 def turns_left(user):

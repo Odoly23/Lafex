@@ -1,0 +1,33 @@
+{% extends 'main/layout.html' %}{% load static %}
+{% block content %}
+<div class="row justify-content-center">
+	<div class="col-lg-8">
+		<h1 class="h4 legend">{{ T.profile_title }}</h1>
+
+		<div class="row text-center mb-3">
+			<div class="col-4"><div class="card stat"><div class="n" id="p-level">-</div><div class="t">{{ T.profile_level }}</div></div></div>
+			<div class="col-4"><div class="card stat"><div class="n" id="p-points">-</div><div class="t">{{ T.points }}</div></div></div>
+			<div class="col-4"><div class="card stat"><div class="n"><i class="fa fa-fire text-warning"></i> <span id="p-streak">-</span></div><div class="t">{{ T.streak }}</div></div></div>
+		</div>
+		<p class="note"><span id="p-email"></span> · {{ T.profile_best_streak }}: <span id="p-best">-</span></p>
+
+		<div class="card mb-3">
+			<div class="card-body">
+				<form id="form-name">
+					<div class="form-group">
+						<label for="name">{{ T.profile_name }}</label>
+						<input id="name" class="form-control" maxlength="80" autocomplete="name">
+					</div>
+					<button class="btn btn-primary" type="submit">{{ T.profile_save }}</button>
+					<span id="name-msg" class="ml-2 text-success" role="status"></span>
+				</form>
+			</div>
+		</div>
+
+		<h2 class="h5 legend">{{ T.profile_certs }}</h2>
+		<div id="certs"></div>
+		<p class="note mt-4"><i class="fa fa-info-circle"></i> {{ T.profile_privacy }}</p>
+	</div>
+</div>
+{% endblock %}
+{% block scripts %}<script type="module" src="{% static 'main/js/profile.js' %}"></script>{% endblock %}

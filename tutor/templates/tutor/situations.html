@@ -1,0 +1,11 @@
+{% extends 'main/layout.html' %}{% load static %}
+{% block content %}
+<div class="row justify-content-center">
+	<div class="col-lg-8">
+		<h1 class="h4 legend">{{ T.situations_title }}</h1>
+		<p class="note">{{ T.situations_intro }}</p>
+		<div id="scenarios"></div>
+	</div>
+</div>
+{% endblock %}
+{% block scripts %}<script type="module" src="{% static 'main/js/situations.js' %}"></script>{% endblock %}

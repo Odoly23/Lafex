@@ -1,0 +1,48 @@
+{% extends 'main/layout.html' %}{% load static %}
+{% block content %}
+<div class="row justify-content-center">
+	<div class="col-lg-7">
+		<div id="intro" class="card shadow-sm text-center">
+			<div class="card-body">
+				{% include 'main/_mascot.html' with size='140' %}
+				<h1 class="h4">{{ T.pron_title }}</h1>
+				<p>{{ T.pron_intro }}</p>
+				<button id="btn-start" class="btn btn-primary btn-lg btn-block" type="button">{{ T.pron_start }}</button>
+				<p class="note mt-3 mb-0"><i class="fa fa-info-circle"></i> {{ T.pron_note }}</p>
+			</div>
+		</div>
+
+		<div id="exam" class="card shadow-sm text-center" hidden>
+			<div class="card-body">
+				<div class="progress mb-3" style="height:10px"><div id="bar" class="progress-bar bg-success" style="width:0"></div></div>
+				<div id="p-text" class="h3 mb-1" aria-live="polite"></div>
+				<div id="p-tet" class="note mb-3"></div>
+				<div class="d-flex justify-content-center flex-wrap" style="gap:10px">
+					<button id="btn-listen" class="btn btn-outline-primary" type="button"><i class="fa fa-volume-up"></i> {{ T.pron_listen }}</button>
+					<button id="btn-rec" class="btn btn-primary" type="button"><i class="fa fa-microphone"></i> {{ T.pron_record }}</button>
+				</div>
+				<div id="p-hint" class="mt-3 note" aria-live="assertive"></div>
+				<div id="p-result" class="mt-3" hidden>
+					<p class="score mb-1"><span id="p-score"></span><small>/100</small></p>
+					<div id="p-words" class="mb-2"></div>
+					<p class="note">{{ T.pron_heard }}: <em id="p-heard"></em></p>
+					<button id="btn-next" class="btn btn-primary btn-block" type="button">{{ T.pron_next }}</button>
+				</div>
+			</div>
+		</div>
+
+		<div id="final" class="card shadow-sm text-center" hidden>
+			<div class="card-body">
+				{% include 'main/_mascot.html' with size='120' %}
+				<h1 class="h4">{{ T.pron_result }}</h1>
+				<p class="score"><span id="f-avg"></span><small>/100 · {{ T.pron_avg }}</small></p>
+				<p id="f-points" class="note"></p>
+				<button id="btn-again" class="btn btn-primary btn-block" type="button">{{ T.pron_start }}</button>
+				<p class="note mt-3 mb-0"><i class="fa fa-info-circle"></i> {{ T.pron_note }}</p>
+			</div>
+		</div>
+		<p id="msg" class="msg mt-2" role="alert"></p>
+	</div>
+</div>
+{% endblock %}
+{% block scripts %}<script type="module" src="{% static 'main/js/pron.js' %}"></script>{% endblock %}

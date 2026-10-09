@@ -1,5 +1,6 @@
 """Pengaturan Lafex. Semua yang berbeda antar lingkungan dibaca dari variabel lingkungan."""
 import os
+import sys
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -30,6 +31,10 @@ INSTALLED_APPS = [
     'rest_framework',
     'config',
     'users',
+    'progress',
+    'vocab',
+    'quiz',
+    'pronounce',
     'billing',
     'curriculum',
     'tutor',
@@ -126,6 +131,10 @@ REST_FRAMEWORK = {
     'DEFAULT_PARSER_CLASSES': ['rest_framework.parsers.JSONParser'],
     'EXCEPTION_HANDLER': 'config.api.exception_handler',
 }
+
+# Cache: pengaturan sistem di-cache 30 detik per proses. Saat tes: tanpa cache.
+CACHES = {'default': {'BACKEND': 'django.core.cache.backends.dummy.DummyCache' if 'test' in sys.argv
+                      else 'django.core.cache.backends.locmem.LocMemCache'}}
 
 # ---- Lafex ----
 LOGIN_CODE_TTL_MINUTES = 10

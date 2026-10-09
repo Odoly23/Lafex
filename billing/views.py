@@ -1,8 +1,10 @@
 from rest_framework.response import Response
 
 from config.api import APIAll, body
+from config.models import SystemSetting
 from config.user_utils import user_group
 from curriculum.models import band_for_level
+from progress import services as progress_services
 
 from . import services
 from .models import Plan, Voucher
@@ -14,7 +16,10 @@ def me_payload(user):
         'email': user.email, 'group': user_group(user), 'level': user.level, 'band': band_for_level(user.level),
         'placement_done': user.placement_done,
         'active': services.is_active(user), 'expires_at': exp.isoformat() if exp else None,
+        'free_mode': not SystemSetting.load().payments_required, 'access': services.has_access(user),
         'turns_left': services.turns_left(user),
+        'name': user.name, 'points': user.points, 'streak': progress_services.current_streak(user),
+        'best_streak': user.best_streak,
     }
 
 

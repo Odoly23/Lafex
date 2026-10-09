@@ -4,19 +4,32 @@
 	<div class="col-lg-8">
 		<div class="hero mb-3">
 			{% include 'main/_mascot.html' with size='110' %}
-			<p class="hero-bubble">{{ T.greeting }}</p>
+			<div>
+				<p class="hero-bubble mb-2">{{ T.greeting }}</p>
+				<div class="d-flex flex-wrap" style="gap:8px">
+					<span class="badge badge-pill badge-warning p-2" title="{{ T.streak }}"><i class="fa fa-fire"></i> {{ T.streak }}: <span id="h-streak">-</span></span>
+					<span class="badge badge-pill badge-light border p-2"><i class="fa fa-star text-warning"></i> {{ T.points }}: <span id="h-points">-</span></span>
+					<span class="badge badge-pill badge-light border p-2">{{ T.level_label }}: <span id="h-level">-</span></span>
+				</div>
+			</div>
 		</div>
 
 		<p id="access-line" class="alert alert-light border" aria-live="polite"></p>
 
 		<a id="placement-cta" class="btn btn-warning btn-lg btn-block mb-3" href="/mission/placement/" hidden>{{ T.placement_cta }}</a>
 
-		<h2 class="h5 legend">{{ T.scenarios_title }}</h2>
-		<div id="scenarios"></div>
+		<div class="row">
+			<div class="col-sm-6 mb-3"><a class="mission-item h-100" href="/belajar/ngobrol/"><i class="fa fa-comments fa-lg text-primary"></i> <strong>{{ T.card_chat }}</strong><small>{{ T.card_chat_d }}</small></a></div>
+			<div class="col-sm-6 mb-3"><a class="mission-item h-100" href="/belajar/kosakata/"><i class="fa fa-language fa-lg text-primary"></i> <strong>{{ T.card_vocab }}</strong><small>{{ T.card_vocab_d }}</small></a></div>
+			<div class="col-sm-6 mb-3"><a class="mission-item h-100" href="/belajar/grammar/"><i class="fa fa-pencil fa-lg text-primary"></i> <strong>{{ T.card_grammar }}</strong><small>{{ T.card_grammar_d }}</small></a></div>
+			<div class="col-sm-6 mb-3"><a class="mission-item h-100" href="/latihan/quiz/"><i class="fa fa-clock-o fa-lg text-primary"></i> <strong>{{ T.card_quiz }}</strong><small>{{ T.card_quiz_d }}</small></a></div>
+			<div class="col-sm-6 mb-3"><a class="mission-item h-100" href="/latihan/pronunciation/"><i class="fa fa-microphone fa-lg text-primary"></i> <strong>{{ T.card_pron }}</strong><small>{{ T.card_pron_d }}</small></a></div>
+			<div class="col-sm-6 mb-3"><a class="mission-item h-100" href="/belajar/situasaun/"><i class="fa fa-map-signs fa-lg text-primary"></i> <strong>{{ T.situations_title }}</strong><small>{{ T.situations_intro }}</small></a></div>
+		</div>
 	</div>
 
 	<div class="col-lg-4">
-		<div class="card mb-3">
+		<div class="card mb-3" id="buy-card">
 			<div class="card-header">{{ T.buy_title }}</div>
 			<div class="card-body">
 				<ul id="plans" class="pl-3"></ul>
@@ -28,7 +41,6 @@
 				<p id="redeem-msg" class="msg mt-2" role="alert"></p>
 			</div>
 		</div>
-		<p><a href="/review/"><i class="fa fa-book"></i> {{ T.review_link }}</a></p>
 	</div>
 </div>
 {% endblock %}

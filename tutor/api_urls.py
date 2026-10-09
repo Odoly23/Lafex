@@ -7,4 +7,5 @@ urlpatterns = [
     path('sessions/<int:session_id>/turn/', api.APITurn.as_view()),
     path('sessions/<int:session_id>/finish/', api.APIFinish.as_view()),
     path('review/', api.APIReview.as_view()),
+    path('grammar/', api.APIGrammar.as_view()),
 ]

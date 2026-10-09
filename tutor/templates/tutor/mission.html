@@ -8,7 +8,7 @@
 				<div class="card-body text-center">
 					{% include 'main/_mascot.html' with size='170' %}
 					<h1 class="h4">{{ mission.title_tet }}</h1>
-					<p class="mb-4"><strong>{{ T.goal }}:</strong> {{ mission.goal_tet }}</p>
+					<p class="mb-4">{% if mission.is_free %}{{ mission.goal_tet }}{% else %}<strong>{{ T.goal }}:</strong> {{ mission.goal_tet }}{% endif %}</p>
 					<button id="btn-start" class="btn btn-primary btn-lg btn-block" type="button">{{ T.start_mission }}</button>
 					<p class="mt-3 mb-0"><a href="/">{{ T.back }}</a></p>
 				</div>
@@ -17,7 +17,7 @@
 			<div id="talk" hidden>
 				<div class="hero small mb-2">
 					{% include 'main/_mascot.html' with size='72' %}
-					<p class="goal"><strong>{{ T.goal }}:</strong> {{ mission.goal_tet }}</p>
+					<p class="goal">{% if mission.is_free %}{{ mission.title_tet }}{% else %}<strong>{{ T.goal }}:</strong> {{ mission.goal_tet }}{% endif %}</p>
 				</div>
 				<div id="chat" aria-live="polite"></div>
 				<button id="btn-finish" class="btn btn-warning btn-lg btn-block my-2" type="button" hidden>{{ T.finish }}</button>
@@ -47,6 +47,8 @@
 						</div>
 					</div>
 					<p id="r-headline" class="lead"></p>
+					<p id="r-points" class="note"></p>
+					<a id="r-cert" class="btn btn-warning btn-block mb-2" href="#" target="_blank" rel="noopener" hidden>{{ T.new_certificate }}</a>
 					<p>{{ T.new_level }}: <span id="r-level" class="badge badge-warning"></span></p>
 					<h2 class="h6 legend">{{ T.tips }}</h2><ul id="r-tips"></ul>
 					<h2 class="h6 legend">{{ T.corrections }}</h2><div id="r-corr"></div>

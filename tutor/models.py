@@ -35,3 +35,18 @@ class Turn(models.Model):
 		unique_together = [('session', 'idx')]
 		verbose_name = 'Dalan koalia'
 		verbose_name_plural = 'Dalan koalia'
+
+
+class GrammarCheck(models.Model):
+	user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='grammar_checks',
+                             verbose_name='Estudante')
+	original = models.CharField(max_length=600, verbose_name='Sentensa orijinál')
+	corrected = models.CharField(max_length=600, blank=True, verbose_name='Sentensa korreitu')
+	ok = models.BooleanField(default=False, verbose_name='Sentensa loos ona')
+	result = models.JSONField(default=dict, blank=True, verbose_name='Rezultadu')
+	created_at = models.DateTimeField(default=timezone.now, verbose_name='Data')
+
+	class Meta:
+		ordering = ['-created_at']
+		verbose_name = 'Grammar fix'
+		verbose_name_plural = 'Grammar fix'

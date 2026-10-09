@@ -44,6 +44,10 @@ class User(AbstractBaseUser, PermissionsMixin):
 	is_active = models.BooleanField(default=True, verbose_name='Ativu')
 	is_staff = models.BooleanField(default=False, verbose_name='Bele tama admin')
 	date_joined = models.DateTimeField(default=timezone.now, verbose_name='Data tama')
+	points = models.PositiveIntegerField(default=0, verbose_name='Pontu')
+	streak = models.PositiveIntegerField(default=0, verbose_name='Streak (loron-loron)')
+	best_streak = models.PositiveIntegerField(default=0, verbose_name='Streak di\'ak liu')
+	last_active = models.DateField(null=True, blank=True, verbose_name='Loron ativu ikus')
 
 	objects = UserManager()
 

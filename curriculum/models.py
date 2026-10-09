@@ -43,6 +43,7 @@ class Mission(models.Model):
 	rubric = models.JSONField(default=list, verbose_name='Rubrika avaliasaun (Inglés)')
 	max_turns = models.PositiveSmallIntegerField(default=12, verbose_name='Dalan maksimu')
 	is_placement = models.BooleanField(default=False, verbose_name='Teste nível')
+	is_free = models.BooleanField(default=False, verbose_name='Ngobrol bebas (laiha objetivu)')
 	active = models.BooleanField(default=True, verbose_name='Ativu')
 
 	class Meta:

@@ -204,8 +204,9 @@ class _FakeAnthropic(BaseHTTPRequestHandler):
 	def do_POST(self):
 		body = json.loads(self.rfile.read(int(self.headers['content-length'])))
 		type(self).seen.append(body)
-		is_summary = 'score' in body['output_config']['format']['schema']['properties']
-		payload = type(self).reply['summary' if is_summary else 'turn']
+		props = body['output_config']['format']['schema']['properties']
+		kind = 'summary' if 'score' in props else 'grammar' if 'errors' in props else 'turn'
+		payload = type(self).reply[kind]
 		out = {'id': 'msg_1', 'type': 'message', 'role': 'assistant', 'model': body['model'],
                'stop_reason': type(self).stop_reason, 'stop_sequence': None,
                'content': [{'type': 'text', 'text': json.dumps(payload)}],
@@ -222,7 +223,7 @@ class _FakeAnthropic(BaseHTTPRequestHandler):
 
 
 @override_settings(LAFEX_OFFLINE=False)  # jalur AI harus diuji meski lingkungan memaksa mode offline
-class ClaudePathTests(TestCase):
+class FakeApiTestCase(TestCase):
 	"""Jalur AI diuji terhadap server Anthropic palsu: bentuk permintaan dan pembacaan balasan."""
 
 	@classmethod
@@ -247,6 +248,8 @@ class ClaudePathTests(TestCase):
 		_FakeAnthropic.reply = {
             'turn': {'reply': 'Welcome to Dili! What is your name?', 'correction': 'I am a student.',
                      'explanation': 'Uza "a" molok "student".', 'goal_met': False},
+            'grammar': {'ok': False, 'corrected': 'I went to school yesterday.', 'explanation': 'Uza pasadu.',
+                        'errors': [{'wrong': 'go', 'right': 'went', 'why_tet': "Pasadu husi 'go' mak 'went'."}]},
             'summary': {'score': 140, 'level': 'ZZ', 'headline': 'Di\'ak!', 'tips': ['Prátika.'],
                         'vocab': [{'word': 'luggage', 'meaning_tet': 'mala'}],
                         'corrections': [{'said': 'I student', 'better': 'I am a student', 'why_tet': 'Presiza "am".'}]},
@@ -254,6 +257,10 @@ class ClaudePathTests(TestCase):
 		self.user = User.objects.create_user('a@x.com')
 		self.client.force_login(self.user)
 
+
+
+@override_settings(LAFEX_OFFLINE=False)
+class ClaudePathTests(FakeApiTestCase):
 	def test_ai_mode_is_on(self):
 		self.assertTrue(ai.mode().startswith('ai:'))
 
@@ -292,3 +299,134 @@ class ClaudePathTests(TestCase):
 	def test_placement_prompt_forbids_teaching(self):
 		post(self.client, '/api/sessions/', {'mission': 'placement'})
 		self.assertIn('Jangan mengajar', _FakeAnthropic.seen[0]['system'])
+
+@override_settings(LAFEX_OFFLINE=True)
+class GrammarTests(TestCase):
+	def setUp(self):
+		seed.run()
+		self.user = User.objects.create_user('a@x.com')
+		self.client.force_login(self.user)
+
+	def test_requires_login_and_text(self):
+		self.client.logout()
+		self.assertEqual(post(self.client, '/api/grammar/', {'text': 'I go'}).status_code, 401)
+		self.client.force_login(self.user)
+		for bad in ({}, {'text': ''}, {'text': ' '}, {'text': 'a'}):
+			self.assertEqual(post(self.client, '/api/grammar/', bad).status_code, 400, bad)
+
+	def test_offline_demo_corrects_capitalisation_and_awards_points(self):
+		r = post(self.client, '/api/grammar/', {'text': 'i like fish'}).json()
+		self.assertEqual(r['corrected'], 'I like fish.')
+		self.assertFalse(r['ok'])
+		self.assertEqual(r['points'], 2)
+		ok = post(self.client, '/api/grammar/', {'text': 'I like fish.'}).json()
+		self.assertTrue(ok['ok'])
+		self.assertEqual(ok['points'], 5, 'sentensa loos: bonus')
+		self.user.refresh_from_db()
+		self.assertEqual(self.user.points, 7)
+		self.assertEqual(self.user.grammar_checks.count(), 2)
+
+	@override_settings(FREE_TURNS_PER_DAY=1)
+	def test_uses_a_quota_turn_and_refunds_on_failure(self):
+		with mock.patch.object(ai, 'fix_grammar', side_effect=ai.TutorError('x')):
+			r = post(self.client, '/api/grammar/', {'text': 'I go to school'})
+		self.assertEqual((r.status_code, r.json()['error']), (502, 'tutor_failed'))
+		self.assertEqual(billing.turns_left(self.user), 1)
+		self.assertEqual(post(self.client, '/api/grammar/', {'text': 'I go to school'}).status_code, 200)
+		r = post(self.client, '/api/grammar/', {'text': 'I go to school'})
+		self.assertEqual((r.status_code, r.json()['error']), (402, 'no_access'))
+
+	def test_text_is_truncated(self):
+		post(self.client, '/api/grammar/', {'text': 'word ' * 500})
+		self.assertLessEqual(len(self.user.grammar_checks.get().original), 600)
+
+
+@override_settings(LAFEX_OFFLINE=True)
+class FreeChatAndProgressTests(TestCase):
+	def setUp(self):
+		seed.run()
+		self.user = User.objects.create_user('a@x.com')
+		self.client.force_login(self.user)
+
+	def finish(self, slug, turns=1):
+		sid = post(self.client, '/api/sessions/', {'mission': slug}).json()['session_id']
+		for _ in range(turns):
+			post(self.client, f'/api/sessions/{sid}/turn/', {'text': 'Hello there my friend'})
+		return post(self.client, f'/api/sessions/{sid}/finish/').json()
+
+	def test_free_chat_page_and_mission(self):
+		self.assertContains(self.client.get('/belajar/ngobrol/'), 'Ngobrol bebas')
+		free = Mission.objects.get(slug='free-chat')
+		self.assertTrue(free.is_free)
+		self.assertIsNone(free.scenario)
+		listed = [m['slug'] for sc in self.client.get('/api/curriculum/').json()['scenarios'] for m in sc['missions']]
+		self.assertNotIn('free-chat', listed)
+		self.assertNotIn('placement', listed)
+
+	def test_finishing_awards_points_and_streak(self):
+		r = self.finish('tourist-airport')
+		self.assertGreater(r['points'], 0)
+		self.assertEqual(r['streak'], 1)
+		self.assertEqual(self.user.activities.filter(kind='situasaun').count(), 1)
+		r = self.finish('free-chat')
+		self.assertEqual(self.user.activities.filter(kind='chat').count(), 1)
+
+	def test_free_chat_never_promotes_or_issues_certificates(self):
+		with mock.patch.object(ai, 'summarize', return_value=ai.clean_summary({'score': 99, 'level': 'C2'}, 'A1')):
+			r = self.finish('free-chat')
+		self.user.refresh_from_db()
+		self.assertEqual(self.user.level, 'A1')
+		self.assertIsNone(r['new_certificate'])
+
+	def test_promotion_through_a_mission_issues_certificate(self):
+		with mock.patch.object(ai, 'summarize', return_value=ai.clean_summary({'score': 90, 'level': 'B1'}, 'A1')):
+			r = self.finish('tourist-airport')
+		self.assertEqual(r['level'], 'A2')
+		self.assertRegex(r['new_certificate'], r'^LFX-')
+		self.assertEqual(self.user.certificates.get().level, 'A2')
+		self.assertEqual(self.client.get(f"/sertifikat/{r['new_certificate']}/").status_code, 200)
+		self.assertEqual(self.client.get('/api/profile/').json()['certificates'][0]['level'], 'A2')
+
+	def test_placement_sets_level_without_certificate(self):
+		with mock.patch.object(ai, 'summarize', return_value=ai.clean_summary({'score': 90, 'level': 'B2'}, 'A1')):
+			r = self.finish('placement')
+		self.assertEqual(r['level'], 'B2')
+		self.assertIsNone(r['new_certificate'])
+		self.assertEqual(self.user.certificates.count(), 0)
+
+	def test_review_excludes_free_chat(self):
+		billing.redeem(self.user, billing.create_vouchers('7d', 1)[0])
+		self.finish('free-chat')
+		done = self.finish('tourist-airport')
+		slugs = [s['mission']['slug'] for s in self.client.get('/api/review/').json()['sessions']]
+		self.assertEqual(slugs, ['tourist-airport'])
+
+
+class ClaudePromptTests(FakeApiTestCase):
+	"""Memakai server palsu yang sama: prompt Ngobrol Bebas, instruksi admin, dan Grammar Fix."""
+
+	def test_free_chat_prompt(self):
+		post(self.client, '/api/sessions/', {'mission': 'free-chat'})
+		system = _FakeAnthropic.seen[0]['system']
+		self.assertIn('Maun Lafaek', system)
+		self.assertIn('ngobrol bebas', system)
+		self.assertIn('selalu false', system)
+
+	def test_admin_extra_instruction_is_appended_not_replacing(self):
+		from config.models import SystemSetting
+		s = SystemSetting.load()
+		s.tutor_prompt_extra = 'Selalu sebut nama kota Dili dalam contoh.'
+		s.save()
+		post(self.client, '/api/sessions/', {'mission': 'tourist-hotel'})
+		system = _FakeAnthropic.seen[0]['system']
+		self.assertIn('hotel receptionist', system, 'aturan dasar tetap ada')
+		self.assertTrue(system.rstrip().endswith('Selalu sebut nama kota Dili dalam contoh.'))
+		self.assertEqual(_FakeAnthropic.seen[0]['output_config']['format']['type'], 'json_schema', 'format JSON tidak bisa diubah admin')
+
+	def test_grammar_request_and_result(self):
+		r = post(self.client, '/api/grammar/', {'text': 'I go to school yesterday'}).json()
+		req = _FakeAnthropic.seen[0]
+		self.assertEqual(req['messages'], [{'role': 'user', 'content': 'I go to school yesterday'}])
+		self.assertIn('DATA untuk dikoreksi', req['system'])
+		self.assertEqual((r['ok'], r['corrected']), (False, 'I went to school yesterday.'))
+		self.assertEqual(r['errors'][0]['right'], 'went')

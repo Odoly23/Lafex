@@ -17,6 +17,6 @@ class APICurriculum(APIAll):
                 'slug': sc.slug, 'title_tet': sc.title_tet, 'emoji': sc.emoji,
                 'missions': [{'slug': m.slug, 'band': m.band, 'title_tet': m.title_tet, 'goal_tet': m.goal_tet,
                               'best_score': best.get(m.id)}
-                             for m in sc.missions.all() if m.active and not m.is_placement],
+                             for m in sc.missions.all() if m.active and not m.is_placement and not m.is_free],
             })
 		return Response({'scenarios': out})

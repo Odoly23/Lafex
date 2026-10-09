@@ -141,6 +141,8 @@ async function finish() {
   $('r-score').textContent = r.score;
   $('r-headline').textContent = s.headline;
   $('r-level').textContent = r.level;
+  $('r-points').textContent = `${T.points}: ${r.points} · ${T.streak}: ${r.streak}`;
+  if (r.new_certificate) { $('r-cert').href = `/sertifikat/${r.new_certificate}/`; $('r-cert').hidden = false; }
   const li = (txt) => { const e = document.createElement('li'); e.textContent = txt; return e; };
   $('r-tips').replaceChildren(...s.tips.map(li));
   $('r-vocab').replaceChildren(...s.vocab.map((v) => li(`${v.word} = ${v.meaning_tet}`)));

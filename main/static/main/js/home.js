@@ -1,46 +1,20 @@
 import { $, T, api, fmt, errText } from './common.js';
 
-const BANDS = ['beginner', 'intermediate', 'advanced'];
-
-function renderAccess(me) {
-  $('access-line').textContent = me.active
-    ? fmt(T.access_active, { date: new Date(me.expires_at).toLocaleDateString() })
+function renderMe(me) {
+  $('h-streak').textContent = fmt(T.streak_days, { n: me.streak });
+  $('h-points').textContent = me.points;
+  $('h-level').textContent = me.level;
+  $('access-line').textContent = me.free_mode ? T.free_mode
+    : me.active ? fmt(T.access_active, { date: new Date(me.expires_at).toLocaleDateString() })
     : fmt(T.access_free, { n: me.turns_left });
-}
-
-function renderScenarios(data, me) {
-  const root = $('scenarios');
-  root.replaceChildren();
-  for (const sc of data.scenarios) {
-    const box = document.createElement('div');
-    box.className = 'scenario';
-    const h = document.createElement('h3');
-    h.textContent = `${sc.emoji} ${sc.title_tet}`;
-    h.className = 'h5';
-    box.append(h);
-    for (const band of BANDS) {
-      for (const m of sc.missions.filter((x) => x.band === band)) {
-        const a = document.createElement('a');
-        a.className = 'mission-item' + (band === me.band ? ' rec' : '');
-        a.href = `/mission/${m.slug}/`;
-        a.textContent = m.title_tet;
-        const tag = document.createElement('span');
-        if (band === me.band) { tag.className = 'tag'; tag.textContent = T.recommended; a.append(tag); }
-        const small = document.createElement('small');
-        small.textContent = `${T['band_' + band]}${m.best_score != null ? ` · ${T.best_score}: ${m.best_score}` : ''}`;
-        a.append(small);
-        box.append(a);
-      }
-    }
-    root.append(box);
-  }
+  $('buy-card').hidden = me.free_mode;
 }
 
 // Dipasang sejak awal (bukan setelah data termuat) agar klik cepat tidak hilang.
 $('btn-redeem').onclick = async () => {
   $('redeem-msg').textContent = '';
   try {
-    renderAccess(await api('/redeem/', { code: $('voucher').value }));
+    renderMe(await api('/redeem/', { code: $('voucher').value }));
     $('voucher').value = '';
     $('redeem-msg').textContent = T.redeemed;
   } catch (err) { $('redeem-msg').textContent = errText(err); }
@@ -48,9 +22,8 @@ $('btn-redeem').onclick = async () => {
 
 (async () => {
   try {
-    const [me, cur] = await Promise.all([api('/me/'), api('/curriculum/')]);
-    renderAccess(me);
-    renderScenarios(cur, me);
+    const me = await api('/me/');
+    renderMe(me);
     $('placement-cta').hidden = me.placement_done;
     $('plans').replaceChildren(...me.plans.map((p) => {
       const li = document.createElement('li');

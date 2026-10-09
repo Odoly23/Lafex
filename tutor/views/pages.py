@@ -22,6 +22,32 @@ def MissionPage(request, slug):
 @login_required
 @allowed_users(allowed_roles=ALL_ROLES)
 @ensure_csrf_cookie
+def ChatPage(request):
+	"""Ngobrol Bebas: memakai halaman misi dengan misi khusus 'free-chat'."""
+	mission = get_object_or_404(Mission, slug='free-chat', active=True)
+	context = {'group': user_group(request.user), 'page': 'ngobrol', 'mission': mission, 'title': mission.title_tet}
+	return render(request, 'tutor/mission.html', context)
+
+
+@login_required
+@allowed_users(allowed_roles=ALL_ROLES)
+@ensure_csrf_cookie
+def SituationsPage(request):
+	context = {'group': user_group(request.user), 'page': 'situasaun', 'title': 'Situasaun'}
+	return render(request, 'tutor/situations.html', context)
+
+
+@login_required
+@allowed_users(allowed_roles=ALL_ROLES)
+@ensure_csrf_cookie
+def GrammarPage(request):
+	context = {'group': user_group(request.user), 'page': 'grammar', 'title': 'Grammar fix'}
+	return render(request, 'tutor/grammar.html', context)
+
+
+@login_required
+@allowed_users(allowed_roles=ALL_ROLES)
+@ensure_csrf_cookie
 def ReviewPage(request):
 	# Sengaja tanpa data pengguna di HTML: berkas ini dicache PWA dan data diambil lewat API / IndexedDB.
 	context = {'group': user_group(request.user), 'page': 'review'}

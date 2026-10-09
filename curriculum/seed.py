@@ -21,6 +21,14 @@ MISSIONS = [
             'how well they answered. Do not teach during the check; just ask the next question.'),
         'rubric': ['Grammar range', 'Vocabulary range', 'Fluency and length of answers', 'Understanding of questions'],
     },
+    {
+        'slug': 'free-chat', 'scenario': None, 'band': 'beginner', 'order': 0, 'is_free': True, 'max_turns': 30,
+        'title_tet': 'Ngobrol bebas ho Maun Lafaek', 'title_en': 'Free chat with Maun Lafaek',
+        'goal_tet': 'Ko\'alia livre kona-ba buat ruma ne\'ebé ita gosta.',
+        'goal_en': 'Have a friendly, free conversation about anything the student likes.',
+        'ai_role': 'Friendly conversation partner (see free-chat prompt).',
+        'rubric': ['Grammar', 'Vocabulary', 'Fluency and willingness to speak'],
+    },
     # ---- Tourist ----
     {
         'slug': 'tourist-airport', 'scenario': 'tourist', 'band': 'beginner', 'order': 1, 'max_turns': 10,

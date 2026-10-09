@@ -1,0 +1,31 @@
+{% extends 'frontend/base.html' %}{% load static %}
+{% block content %}
+<section id="home">
+  <div class="hero">
+    {% include 'frontend/_mascot.html' %}
+    <p class="bubble-hero">{{ T.greeting }}</p>
+  </div>
+
+  <p id="access-line" class="card" aria-live="polite"></p>
+  <p>{{ T.level_label }}: <strong id="level"></strong></p>
+
+  <a id="placement-cta" class="primary big" href="/mission/placement/" hidden>{{ T.placement_cta }}</a>
+
+  <h2>{{ T.scenarios_title }}</h2>
+  <div id="scenarios"></div>
+
+  <p><a href="/review/">{{ T.review_link }}</a></p>
+
+  <details id="buy" class="card">
+    <summary>{{ T.buy_title }}</summary>
+    <ul id="plans"></ul>
+    <label for="voucher">{{ T.voucher_label }}</label>
+    <input id="voucher" autocapitalize="characters" placeholder="XXXX-XXXX-XXXX">
+    <button id="btn-redeem" type="button">{{ T.redeem }}</button>
+    <p id="redeem-msg" class="msg" role="alert"></p>
+  </details>
+
+  <p><button id="btn-logout" type="button">{{ T.logout }}</button></p>
+</section>
+{% endblock %}
+{% block scripts %}<script type="module" src="{% static 'frontend/js/home.js' %}"></script>{% endblock %}

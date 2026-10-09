@@ -16,9 +16,12 @@
 	<div class="col-lg-4 mb-3"><div class="card"><div class="card-header">Estudante tuir nível</div><div class="card-body"><div class="chart-box"><canvas id="ch-levels" role="img" aria-label="Estudante tuir nível"></canvas></div></div></div></div>
 	<div class="col-lg-8 mb-3"><div class="card"><div class="card-header">Pontu média kada misaun (jumlah sesaun iha parentese)</div><div class="card-body"><div class="chart-box"><canvas id="ch-missions" role="img" aria-label="Sesaun no pontu média kada misaun"></canvas></div></div></div></div>
 	<div class="col-lg-4 mb-3"><div class="card"><div class="card-header">Vaucher</div><div class="card-body"><div class="chart-box"><canvas id="ch-vouchers" role="img" aria-label="Vaucher uza no seidauk uza"></canvas></div></div></div></div>
+	<div class="col-lg-8 mb-3"><div class="card"><div class="card-header">{{ T.dash_map_title }}</div><div class="card-body"><div id="map-municipality" style="height:380px" role="img" aria-label="{{ T.dash_map_title }}"></div><p class="note mb-0 mt-2"><span id="map-none">0</span> {{ T.dash_map_none }}</p></div></div></div>
+	<div class="col-lg-4 mb-3"><div class="card"><div class="card-header">{{ T.nav_students }} / {{ T.profile_municipality }}</div><div class="card-body"><div class="chart-box" style="height:380px"><canvas id="ch-municipality" role="img" aria-label="Ranking munisipiu"></canvas></div></div></div></div>
 </div>
 {% endblock %}
 {% block scripts %}
 <script src="{% static 'main/chart/chart.umd.js' %}"></script>
+<script src="{% static 'main/charts/highmaps.js' %}"></script>
 <script type="module" src="{% static 'report/js/dash.js' %}"></script>
 {% endblock %}

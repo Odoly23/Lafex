@@ -3,7 +3,8 @@ import json
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import redirect, render
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.templatetags.static import static
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import ensure_csrf_cookie
@@ -25,7 +26,11 @@ SHELL_STATIC = [
 @unauthenticated_user
 @ensure_csrf_cookie
 def LoginPage(request):
-	return render(request, 'home/login.html', {'page': 'login', 'title': 'Tama'})
+	from users.social import enabled_providers
+	nxt = request.GET.get('next', '')
+	if not url_has_allowed_host_and_scheme(nxt, allowed_hosts={request.get_host()}, require_https=request.is_secure()):
+		nxt = ''
+	return render(request, 'home/login.html', {'page': 'login', 'title': 'Tama', 'providers': enabled_providers(), 'next': nxt})
 
 
 @login_required
@@ -72,3 +77,19 @@ def error_500(request):
 	# Halaman statis tanpa pemroses konteks: kesalahan 500 bisa berasal dari sana.
 	from django.template import loader
 	return HttpResponse(loader.render_to_string('home/500.html'), status=500)
+
+
+def SignupRedirect(request):
+	return redirect('login')  # pendaftaran terjadi otomatis pada login pertama (sosial atau kode email)
+
+
+def SocialCancelled(request):
+	return redirect('/login/?error=social_cancelled')
+
+
+def SocialError(request):
+	return redirect('/login/?error=social_error')
+
+
+def AccountInactive(request):
+	return render(request, 'home/403.html', status=403)

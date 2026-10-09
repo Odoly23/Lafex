@@ -20,19 +20,77 @@ class Plan(models.Model):
 		return f'{self.label} (${self.price_usd})'
 
 
+class VoucherBatch(models.Model):
+	"""Satu kelompok voucher yang dicetak untuk satu toko/penjual. Bisa dibatalkan sekaligus."""
+	label = models.CharField(max_length=80, verbose_name='Toko / penjual (label)')
+	plan = models.ForeignKey(Plan, on_delete=models.PROTECT, verbose_name='Pakote')
+	quantity = models.PositiveIntegerField(verbose_name='Kuantidade')
+	created_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL,
+                                   related_name='+', verbose_name='Kria husi')
+	created_at = models.DateTimeField(default=timezone.now, verbose_name='Data kria')
+	valid_until = models.DateTimeField(verbose_name='Válidu to\'o')
+	voided_at = models.DateTimeField(null=True, blank=True, verbose_name='Kansela iha')
+
+	class Meta:
+		ordering = ['-created_at']
+		verbose_name = 'Batch vaucher'
+		verbose_name_plural = 'Batch vaucher'
+
+	def __str__(self):
+		return f'#{self.pk} {self.label}'
+
+	@property
+	def active(self):
+		return self.voided_at is None and self.valid_until > timezone.now()
+
+
+class VoucherQuerySet(models.QuerySet):
+	def available(self):
+		"""Belum dipakai, tidak dibatalkan, dan belum kedaluwarsa."""
+		now = timezone.now()
+		return self.filter(used_by__isnull=True, voided_at__isnull=True).filter(
+            models.Q(batch__isnull=True) | models.Q(batch__voided_at__isnull=True, batch__valid_until__gt=now))
+
+
 class Voucher(models.Model):
-	code = models.CharField(max_length=20, unique=True, verbose_name='Kódigu')
+	"""Kartu voucher. Kode rahasia TIDAK disimpan (hanya hash); `serial` adalah nomor cetak yang aman ditampilkan."""
+	serial = models.CharField(max_length=24, unique=True, verbose_name='Nu. seri')
+	code_hash = models.CharField(max_length=64, unique=True)
+	batch = models.ForeignKey(VoucherBatch, null=True, blank=True, on_delete=models.PROTECT, related_name='vouchers',
+                              verbose_name='Batch')
 	plan = models.ForeignKey(Plan, on_delete=models.PROTECT, verbose_name='Pakote')
 	created_at = models.DateTimeField(default=timezone.now, verbose_name='Data kria')
 	used_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, verbose_name='Uza husi')
 	used_at = models.DateTimeField(null=True, blank=True, verbose_name='Data uza')
+	voided_at = models.DateTimeField(null=True, blank=True, verbose_name='Kansela iha')
+
+	objects = VoucherQuerySet.as_manager()
 
 	class Meta:
 		verbose_name = 'Vaucher'
 		verbose_name_plural = 'Vaucher'
 
 	def __str__(self):
-		return self.code
+		return self.serial
+
+	@property
+	def status(self):
+		"""used | void | expired | available"""
+		if self.used_by_id or self.used_at:
+			return 'used'
+		if self.voided_at or (self.batch_id and self.batch.voided_at):
+			return 'void'
+		if self.batch_id and self.batch.valid_until <= timezone.now():
+			return 'expired'
+		return 'available'
+
+
+class RedeemAttempt(models.Model):
+	"""Catatan percobaan memasukkan kode (untuk membatasi tebak-tebakan)."""
+	user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='+')
+	ip = models.CharField(max_length=45, blank=True)
+	ok = models.BooleanField(default=False)
+	created_at = models.DateTimeField(default=timezone.now, db_index=True)
 
 
 class Entitlement(models.Model):

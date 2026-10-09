@@ -1,4 +1,4 @@
-"""Kosa kata awal (Tetun -> Inglés). Idempoten. Teks Tetun WAJIB ditinjau penutur asli."""
+"""Vokabulario awal (Tetun -> Inglés). Idempoten. Teks Tetun WAJIB ditinjau penutur asli."""
 
 CATEGORIES = [
     {'slug': 'eskola', 'name_tet': 'Eskola', 'name_en': 'School', 'emoji': '🏫', 'order': 1, 'items': [

@@ -9,6 +9,28 @@ function chart(id, type, data, opts = {}) {
   return new Chart($(id), { type, data, options: { ...common, ...opts } });
 }
 
+// Peta Highcharts Maps: wilayah dicocokkan lewat hc-key yang tersimpan di database (Municipality.hckey).
+// Terisolasi di fungsi ini agar mudah diganti jika lisensi Highmaps tidak dibeli.
+async function drawMunicipalities() {
+  const [topology, r] = await Promise.all([getJSON('/static/main/charts/tl-all.geo.json'), getJSON('/api/report/munisipiu/')]);
+  $('map-none').textContent = r.sem_munisipiu;
+  Highcharts.mapChart('map-municipality', {
+    chart: { map: topology, backgroundColor: 'transparent' },
+    title: { text: null },
+    mapNavigation: { enabled: false },
+    colorAxis: { min: 0, minColor: '#e9f2e4', maxColor: '#2f5a2b', allowDecimals: false },
+    legend: { layout: 'horizontal', align: 'center', verticalAlign: 'bottom' },
+    tooltip: { pointFormat: '{point.name}: <b>{point.value}</b>' },
+    series: [{
+      data: r.data, joinBy: 'hc-key', name: 'Estudante', borderColor: '#ffffff',
+      states: { hover: { color: '#fed755' } },
+      dataLabels: { enabled: true, format: '{point.name}', style: { textOutline: 'none', fontWeight: '600', fontSize: '10px' } },
+    }],
+  });
+  chart('ch-municipality', 'bar', { labels: r.label, datasets: [{ data: r.obj, backgroundColor: GREEN }] },
+    { indexAxis: 'y', scales: { x: { beginAtZero: true, ticks: { precision: 0 } } } });
+}
+
 (async () => {
   try {
     const s = await getJSON('/api/report/stats/');
@@ -27,6 +49,8 @@ function chart(id, type, data, opts = {}) {
     chart('ch-missions', 'bar', { labels: ms.label.map((l, i) => `${l} (${ms.obj[i]})`), datasets: [
       { label: 'Pontu média', data: ms.avg, backgroundColor: YELLOW, borderColor: INK, borderWidth: 1 },
     ] }, { scales: { y: { beginAtZero: true, max: 100 } } });
+
+    await drawMunicipalities();
 
     const v = await getJSON('/api/report/vaucher/');
     chart('ch-vouchers', 'doughnut', { labels: v.label, datasets: [{ data: v.obj, backgroundColor: [GREEN, YELLOW], borderColor: '#fff' }] },

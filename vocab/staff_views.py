@@ -21,8 +21,8 @@ def _ctx(request, **extra):
 @login_required
 @allowed_users(allowed_roles=ROLES)
 def CategoryList(request):
-	objects = VocabCategory.objects.annotate(n_items=Count('items', filter=Q(items__active=True)))
-	return render(request, 'vocab/staff_categories.html', _ctx(request, objects=objects, title='Kosa kata', legend='Kategoria kosa kata'))
+	objects = VocabCategory.objects.annotate(n_items=Count('items', filter=Q(items__active=True))).order_by('order', 'name_tet')  # eksplisit: Meta.ordering diabaikan pada query annotate
+	return render(request, 'vocab/staff_categories.html', _ctx(request, objects=objects, title='Vokabulario', legend='Kategoria vokabulario'))
 
 
 @login_required
@@ -56,9 +56,9 @@ def ItemEdit(request, pk=None, category_pk=None):
 		obj = form.save(commit=False)
 		obj.category = cat
 		obj.save()
-		messages.success(request, 'Kosa kata rai ona.')
+		messages.success(request, 'Vokabulario rai ona.')
 		return redirect('vocab_items', pk=cat.pk)
-	legend = f'Edita kosa kata: {item.tet}' if item else f'Kosa kata foun ({cat.name_tet})'
+	legend = f'Edita vokabulario: {item.tet}' if item else f'Vokabulario foun ({cat.name_tet})'
 	return render(request, 'main/form.html', _ctx(request, form=form, cancel_url=f'/staff/kosakata/{cat.pk}/', title=legend, legend=legend))
 
 
@@ -69,7 +69,7 @@ def ItemDelete(request, pk):
 	item = get_object_or_404(VocabItem, pk=pk)
 	cat_pk = item.category_id
 	item.delete()
-	messages.success(request, 'Kosa kata hamoos ona.')
+	messages.success(request, 'Vokabulario hamoos ona.')
 	return redirect('vocab_items', pk=cat_pk)
 
 

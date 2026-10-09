@@ -4,4 +4,4 @@ from django.apps import AppConfig
 class VocabConfig(AppConfig):
 	default_auto_field = 'django.db.models.BigAutoField'
 	name = 'vocab'
-	verbose_name = 'Kosa kata'
+	verbose_name = 'Vokabulario'

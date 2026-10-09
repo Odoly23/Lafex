@@ -18,8 +18,8 @@ class RoleTests(TestCase):
 
 	def test_user_without_role_gets_403_page_and_api(self):
 		u = User.objects.create_user('norole@x.com')
-		u.groups.clear()
-		self.client.force_login(u)
+		self.client.force_login(u)   # login memberi peran estudante (users/signals.py)
+		u.groups.clear()             # peran dicabut saat sesi masih aktif
 		for url in ('/', '/review/', '/mission/tourist-airport/'):
 			self.assertEqual(self.client.get(url).status_code, 403, url)
 		self.assertEqual(self.client.get('/api/me/').status_code, 403)

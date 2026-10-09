@@ -1,4 +1,4 @@
-// Kartu kosa kata: tampil Tetun, ketuk untuk melihat Inggris (+ suara), tandai "hatene"/"seidauk".
+// Kartu vokabulario: tampil Tetun, ketuk untuk melihat Inggris (+ suara), tandai "hatene"/"seidauk".
 import { $, T, api, errText } from './common.js';
 
 const slug = $('study').dataset.slug;

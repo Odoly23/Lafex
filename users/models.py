@@ -48,6 +48,8 @@ class User(AbstractBaseUser, PermissionsMixin):
 	streak = models.PositiveIntegerField(default=0, verbose_name='Streak (loron-loron)')
 	best_streak = models.PositiveIntegerField(default=0, verbose_name='Streak di\'ak liu')
 	last_active = models.DateField(null=True, blank=True, verbose_name='Loron ativu ikus')
+	municipality = models.ForeignKey('custom.Municipality', null=True, blank=True, on_delete=models.SET_NULL,
+                                     related_name='students', verbose_name='Munisipiu')
 
 	objects = UserManager()
 

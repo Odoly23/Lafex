@@ -1,5 +1,5 @@
 from django.contrib.auth.decorators import login_required
-from django.db.models import Count, Q
+from django.db.models import Case, Count, IntegerField, Q, When
 from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect, render
 
@@ -14,7 +14,10 @@ from .models import Mission
 @allowed_users(allowed_roles=['staff', 'admin'])
 def MissionList(request):
 	objects = (Mission.objects.select_related('scenario')
-               .annotate(n_sesaun=Count('session', filter=Q(session__finished_at__isnull=False))))
+               .annotate(n_sesaun=Count('session', filter=Q(session__finished_at__isnull=False)))
+               .annotate(band_rank=Case(When(band='beginner', then=0), When(band='intermediate', then=1), default=2,
+                                        output_field=IntegerField()))  # urut menurut kesulitan, bukan abjad
+               .order_by('scenario__order', 'band_rank', 'order'))  # eksplisit: Meta.ordering diabaikan pada query annotate
 	context = {
         'group': user_group(request.user), 'page': 'misaun', 'objects': objects,
         'title': 'Lista Misaun', 'legend': 'Lista Misaun',
@@ -28,7 +31,7 @@ def MaterialHub(request):
 	from quiz.models import QuizQuestion
 	from vocab.models import VocabItem
 	context = {
-        'group': user_group(request.user), 'page': 'materi', 'title': 'Materia no kosa kata', 'legend': 'Materia no kosa kata',
+        'group': user_group(request.user), 'page': 'materi', 'title': 'Materia no vokabulario', 'legend': 'Materia no vokabulario',
         'counts': {'missions': Mission.objects.filter(active=True, is_placement=False, is_free=False).count(),
                    'vocab': VocabItem.objects.filter(active=True).count(),
                    'quiz': QuizQuestion.objects.filter(active=True).count()},

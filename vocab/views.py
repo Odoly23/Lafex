@@ -18,7 +18,7 @@ from .models import UserVocab, VocabCategory, VocabItem
 @allowed_users(allowed_roles=ALL_ROLES)
 @ensure_csrf_cookie
 def VocabCategories(request):
-	context = {'group': user_group(request.user), 'page': 'kosakata', 'title': 'Kosa kata'}
+	context = {'group': user_group(request.user), 'page': 'kosakata', 'title': 'Vokabulario'}
 	return render(request, 'vocab/categories.html', context)
 
 

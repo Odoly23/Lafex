@@ -3,4 +3,6 @@ anthropic>=0.132
 mysqlclient>=2.2      # butuh libmariadb-dev / libmysqlclient-dev + pkg-config saat build
 whitenoise>=6.7
 djangorestframework>=3.16
+django-allauth[socialaccount]>=65.0   # login Google/Facebook
+segno>=1.6                             # QR pada kartu vaucher
 gunicorn>=22

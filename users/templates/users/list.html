@@ -4,12 +4,13 @@
 <h1 class="h4 legend">{{ legend }}</h1>
 <div class="card"><div class="card-body table-responsive">
 	<table class="table table-striped table-bordered js-table" style="width:100%">
-		<thead><tr><th>Email</th><th>Nível</th><th>Teste nível</th><th>Pakote</th><th>Sesaun</th><th>Data tama</th><th>Pontu</th><th>Streak</th><th>Ativu</th><th></th></tr></thead>
+		<thead><tr><th>Email</th><th>Nível</th><th>Munisipiu</th><th>Teste nível</th><th>Pakote</th><th>Sesaun</th><th>Data tama</th><th>Pontu</th><th>Streak</th><th>Ativu</th><th></th></tr></thead>
 		<tbody>
 		{% for u in objects %}
 			<tr>
 				<td>{{ u.email }}</td>
 				<td>{{ u.level }}</td>
+				<td>{{ u.municipality.name|default:"-" }}</td>
 				<td>{% if u.placement_done %}<i class="fa fa-check text-success" aria-label="Sim"></i>{% else %}-{% endif %}</td>
 				<td data-order="{{ u.entitlement.expires_at|date:'U'|default:0 }}">{% if u.entitlement %}{{ u.entitlement.expires_at|date:"d/m/Y H:i" }}{% else %}-{% endif %}</td>
 				<td>{{ u.n_sesaun }}</td>

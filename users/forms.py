@@ -13,7 +13,7 @@ class StudentForm(BootstrapModelForm):
 
 	class Meta:
 		model = User
-		fields = ['name', 'level', 'is_active']
+		fields = ['name', 'level', 'municipality', 'is_active']
 
 	def __init__(self, *args, can_grant=False, **kwargs):
 		super().__init__(*args, **kwargs)

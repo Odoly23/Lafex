@@ -3,7 +3,7 @@ from django.db import models
 from django.utils import timezone
 
 KINDS = [
-    ('chat', 'Ngobrol bebas'), ('situasaun', 'Situasaun'), ('vocab', 'Kosa kata'),
+    ('chat', 'Ngobrol bebas'), ('situasaun', 'Situasaun'), ('vocab', 'Vokabulario'),
     ('grammar', 'Grammar fix'), ('quiz', 'Quiz'), ('pron', 'Pronunciation'),
 ]
 

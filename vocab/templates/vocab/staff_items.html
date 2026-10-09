@@ -5,7 +5,7 @@
 	<h1 class="h4 legend">{{ legend }}</h1>
 	<div class="mb-3">
 		<a class="btn btn-outline-primary" href="{% url 'vocab_category_edit' category.pk %}"><i class="fa fa-pencil"></i> Edita kategoria</a>
-		<a class="btn btn-primary" href="{% url 'vocab_item_new' category.pk %}"><i class="fa fa-plus"></i> Kosa kata foun</a>
+		<a class="btn btn-primary" href="{% url 'vocab_item_new' category.pk %}"><i class="fa fa-plus"></i> Vokabulario foun</a>
 	</div>
 </div>
 
@@ -19,7 +19,7 @@
 				<td>{% if i.active %}<i class="fa fa-check text-success" aria-label="Sim"></i>{% else %}<i class="fa fa-times text-danger" aria-label="Lae"></i>{% endif %}</td>
 				<td class="text-nowrap">
 					<a href="{% url 'vocab_item_edit' i.pk %}"><i class="fa fa-pencil"></i> Edita</a>
-					<form method="post" action="{% url 'vocab_item_delete' i.pk %}" class="d-inline" onsubmit="return confirm('Hamoos kosa kata ne\'e?')">{% csrf_token %}<button class="btn btn-link text-danger p-0 ml-2" type="submit"><i class="fa fa-trash"></i> Hamoos</button></form>
+					<form method="post" action="{% url 'vocab_item_delete' i.pk %}" class="d-inline" onsubmit="return confirm('Hamoos vokabulario ne\'e?')">{% csrf_token %}<button class="btn btn-link text-danger p-0 ml-2" type="submit"><i class="fa fa-trash"></i> Hamoos</button></form>
 				</td>
 			</tr>
 		{% endfor %}
@@ -32,7 +32,7 @@
 	<div class="card-body">
 		<form method="post" action="{% url 'vocab_import' category.pk %}">
 			{% csrf_token %}
-			<p class="note mb-2">Liña ida = <code>tetun ; inglés ; ezemplu sentensa (opsionál)</code>. Kosa kata ne'ebé iha ona (Inglés hanesan) sei atualiza. Maksimu 200 liña.</p>
+			<p class="note mb-2">Liña ida = <code>tetun ; inglés ; ezemplu sentensa (opsionál)</code>. Vokabulario ne'ebé iha ona (Inglés hanesan) sei atualiza. Maksimu 200 liña.</p>
 			<textarea name="lines" class="form-control mb-2" rows="5" placeholder="livru ; book ; This book is interesting."></textarea>
 			<button class="btn btn-primary" type="submit"><i class="fa fa-upload"></i> Import</button>
 		</form>

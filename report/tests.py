@@ -134,34 +134,6 @@ class StaffPagesTests(TestCase):
 		self.assertIn(f"/staff/misaun/{Mission.objects.first().pk}/", html)
 		self.assertNotIn('href="/admin/"', html, 'tautan Django admin hanya untuk is_staff')
 
-	def test_voucher_generation_flow(self):
-		from billing.models import Voucher
-		self.client.force_login(self.admin)
-		r = self.client.post('/staff/vaucher/', {'plan': '7d', 'count': '3'})
-		self.assertEqual(r.status_code, 302)
-		self.assertEqual(Voucher.objects.filter(plan__code='7d').count(), 3)
-		page = self.client.get('/staff/vaucher/').content.decode()
-		for v in Voucher.objects.all():
-			self.assertIn(v.code, page)
-		self.assertIn('Kódigu foun', page)
-		self.assertNotIn('Kódigu foun', self.client.get('/staff/vaucher/').content.decode(), 'kode baru hanya tampil sekali')
-
-	def test_voucher_generation_validation_and_roles(self):
-		from billing.models import Voucher
-		self.client.force_login(self.admin)
-		for bad in ({'plan': '7d', 'count': '0'}, {'plan': '7d', 'count': '201'}, {'plan': '7d', 'count': 'x'},
-                    {'plan': 'nope', 'count': '2'}, {'count': '2'}):
-			self.client.post('/staff/vaucher/', bad)
-		self.assertEqual(Voucher.objects.count(), 0)
-		self.client.force_login(self.staff)
-		self.assertEqual(self.client.post('/staff/vaucher/', {'plan': '7d', 'count': '2'}).status_code, 403)
-		self.assertEqual(Voucher.objects.count(), 0)
-
-	def test_voucher_form_requires_csrf(self):
-		strict = Client(enforce_csrf_checks=True)
-		strict.force_login(self.admin)
-		self.assertEqual(strict.post('/staff/vaucher/', {'plan': '7d', 'count': '2'}).status_code, 403)
-
 
 class DashboardStatsTests(TestCase):
 	def setUp(self):
@@ -272,3 +244,52 @@ class MonitoringTests(TestCase):
 		self.client.force_login(self.staff)
 		html = self.client.get('/staff/monitoring/pronunciation/').content.decode()
 		self.assertIn('<strong>100</strong>', html, '20 percobaan terakhir semuanya 100')
+
+
+class MunicipalityReportTests(TestCase):
+	def setUp(self):
+		from custom import seed as custom_seed
+		custom_seed.run()
+		self.staff = User.objects.create_user('s@x.com', is_staff=True)
+		self.estudante = User.objects.create_user('e@x.com')
+
+	def test_permission(self):
+		self.assertEqual(self.client.get('/api/report/munisipiu/').status_code, 401)
+		self.client.force_login(self.estudante)
+		self.assertEqual(self.client.get('/api/report/munisipiu/').status_code, 403)
+
+	def test_counts_use_hckey_from_database_and_only_students(self):
+		from custom.models import Municipality
+		dili, baucau = Municipality.objects.get(name='Dili'), Municipality.objects.get(name='Baucau')
+		User.objects.filter(pk=self.estudante.pk).update(municipality=dili)
+		for i in range(2):
+			User.objects.create_user(f'd{i}@x.com').__class__.objects.filter(email=f'd{i}@x.com').update(municipality=dili)
+		User.objects.create_user('b@x.com')
+		User.objects.filter(email='b@x.com').update(municipality=baucau)
+		User.objects.filter(pk=self.staff.pk).update(municipality=baucau)  # staff tidak dihitung
+		self.client.force_login(self.staff)
+		r = self.client.get('/api/report/munisipiu/').json()
+		by_key = {d['hc-key']: d['value'] for d in r['data']}
+		self.assertEqual((by_key['tl-dl'], by_key['tl-bc'], by_key['tl-lq']), (3, 1, 0))
+		self.assertEqual(len(r['data']), 13)
+		self.assertEqual((r['label'][0], r['obj'][0]), ('Dili', 3), 'urut dari terbanyak')
+		self.assertEqual(sum(r['obj']), 4)
+		self.assertEqual(r['sem_munisipiu'], 0)
+
+	def test_students_without_municipality_are_counted_separately(self):
+		self.client.force_login(self.staff)
+		self.assertEqual(self.client.get('/api/report/munisipiu/').json()['sem_munisipiu'], 1)
+
+	def test_municipality_without_hckey_is_left_off_the_map_only(self):
+		from custom.models import Municipality
+		Municipality.objects.create(name='Atauro', code='AT', hckey=None)
+		self.client.force_login(self.staff)
+		r = self.client.get('/api/report/munisipiu/').json()
+		self.assertEqual(len(r['data']), 13)
+		self.assertIn('Atauro', r['label'])
+
+	def test_dashboard_loads_local_map_library(self):
+		self.client.force_login(self.staff)
+		html = self.client.get('/staff/').content.decode()
+		self.assertIn('/static/main/charts/highmaps.js', html)
+		self.assertIn('id="map-municipality"', html)

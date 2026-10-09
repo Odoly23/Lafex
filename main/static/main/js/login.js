@@ -1,6 +1,10 @@
 import { $, T, api, fmt } from './common.js';
 
 let email = '';
+
+// Pesan dari login sosial (allauth mengalihkan ke /login/?error=...).
+const social = new URLSearchParams(location.search).get('error');
+if (social && T['err_' + social]) $('msg').textContent = T['err_' + social];
 const msg = (t) => { $('msg').textContent = t || ''; };
 
 async function sendCode() {
@@ -22,6 +26,8 @@ $('form-code').onsubmit = async (e) => {
   msg('');
   try {
     await api('/auth/verify/', { email, code: $('code').value.trim() });
-    location.href = '/';
+    // Kembali ke halaman tujuan (mis. /?kode=... dari QR), hanya jalur lokal: cegah open redirect.
+    const next = new URLSearchParams(location.search).get('next') || '';
+    location.href = /^\/(?![\/\\])/.test(next) ? next : '/';
   } catch (err) { msg(err.message === 'code_wrong' ? T.err_code_wrong : T['err_' + err.message] || T.err_generic); }
 };

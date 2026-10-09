@@ -31,7 +31,7 @@ def verify(request):
 	if not result:
 		return JsonResponse({'error': 'code_wrong'}, status=400)
 	user, created = result
-	login(request, user)
+	login(request, user, backend='django.contrib.auth.backends.ModelBackend')  # ada lebih dari satu backend (allauth)
 	return JsonResponse({'ok': True, 'new_user': created})
 
 

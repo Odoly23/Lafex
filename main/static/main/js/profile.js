@@ -27,6 +27,9 @@ function renderCerts(list) {
     $('p-best').textContent = p.best_streak;
     $('p-email').textContent = p.email;
     $('name').value = p.name;
+    const { municipalities } = await api('/municipalities/');
+    $('municipality').append(...municipalities.map((m) => new Option(m.name, m.id)));
+    $('municipality').value = p.municipality ?? '';
     renderCerts(p.certificates);
   } catch (err) { if (err.status === 401) location.href = '/login/'; }
 })();
@@ -35,7 +38,7 @@ $('form-name').onsubmit = async (e) => {
   e.preventDefault();
   $('name-msg').textContent = '';
   try {
-    await api('/profile/', { name: $('name').value });
+    await api('/profile/', { name: $('name').value, municipality: $('municipality').value || null });
     $('name-msg').textContent = T.profile_saved;
   } catch { $('name-msg').textContent = T.err_generic; }
 };

@@ -18,6 +18,10 @@
 						<label for="name">{{ T.profile_name }}</label>
 						<input id="name" class="form-control" maxlength="80" autocomplete="name">
 					</div>
+					<div class="form-group">
+						<label for="municipality">{{ T.profile_municipality }}</label>
+						<select id="municipality" class="custom-select"><option value="">{{ T.profile_municipality_pick }}</option></select>
+					</div>
 					<button class="btn btn-primary" type="submit">{{ T.profile_save }}</button>
 					<span id="name-msg" class="ml-2 text-success" role="status"></span>
 				</form>

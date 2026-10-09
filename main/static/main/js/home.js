@@ -10,6 +10,10 @@ function renderMe(me) {
   $('buy-card').hidden = me.free_mode;
 }
 
+// QR pada kartu vaucher membuka /?kode=XXXX-XXXX-XXXX: isi kolom kode (siswa tetap menekan tombol sendiri).
+const prefill = new URLSearchParams(location.search).get('kode');
+if (prefill) { $('voucher').value = prefill.slice(0, 32); $('buy-card').scrollIntoView(); }
+
 // Dipasang sejak awal (bukan setelah data termuat) agar klik cepat tidak hilang.
 $('btn-redeem').onclick = async () => {
   $('redeem-msg').textContent = '';
@@ -25,6 +29,7 @@ $('btn-redeem').onclick = async () => {
     const me = await api('/me/');
     renderMe(me);
     $('placement-cta').hidden = me.placement_done;
+    $('muni-cta').hidden = me.municipality != null;
     $('plans').replaceChildren(...me.plans.map((p) => {
       const li = document.createElement('li');
       li.textContent = `${p.label}: $${p.price_usd}`;

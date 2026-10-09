@@ -1,4 +1,4 @@
-"""Import kosa kata massal: satu baris = 'tetun ; inglés ; contoh kalimat (opsional)'. Pemisah: ; | atau tab."""
+"""Import vokabulario massal: satu baris = 'tetun ; inglés ; contoh kalimat (opsional)'. Pemisah: ; | atau tab."""
 import re
 
 MAX_LINES = 200

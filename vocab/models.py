@@ -13,8 +13,8 @@ class VocabCategory(models.Model):
 
 	class Meta:
 		ordering = ['order', 'name_tet']
-		verbose_name = 'Kategoria kosa kata'
-		verbose_name_plural = 'Kategoria kosa kata'
+		verbose_name = 'Kategoria vokabulario'
+		verbose_name_plural = 'Kategoria vokabulario'
 
 	def __str__(self):
 		return self.name_en
@@ -30,8 +30,8 @@ class VocabItem(models.Model):
 
 	class Meta:
 		ordering = ['order', 'id']
-		verbose_name = 'Kosa kata'
-		verbose_name_plural = 'Kosa kata'
+		verbose_name = 'Vokabulario'
+		verbose_name_plural = 'Vokabulario'
 
 	def __str__(self):
 		return f'{self.tet} = {self.en}'
@@ -39,12 +39,12 @@ class VocabItem(models.Model):
 
 class UserVocab(models.Model):
 	user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name='Estudante')
-	item = models.ForeignKey(VocabItem, on_delete=models.CASCADE, verbose_name='Kosa kata')
+	item = models.ForeignKey(VocabItem, on_delete=models.CASCADE, verbose_name='Vokabulario')
 	known = models.BooleanField(default=False, verbose_name='Hatene ona')
 	rewarded = models.BooleanField(default=False, verbose_name='Pontu fó ona')  # poin hanya sekali per kata
 	updated_at = models.DateTimeField(default=timezone.now, verbose_name='Atualiza')
 
 	class Meta:
 		unique_together = [('user', 'item')]
-		verbose_name = 'Progresu kosa kata'
-		verbose_name_plural = 'Progresu kosa kata'
+		verbose_name = 'Progresu vokabulario'
+		verbose_name_plural = 'Progresu vokabulario'

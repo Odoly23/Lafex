@@ -29,7 +29,13 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
+    'allauth.socialaccount.providers.facebook',
     'config',
+    'custom',
     'users',
     'progress',
     'vocab',
@@ -50,6 +56,7 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
@@ -87,6 +94,40 @@ else:
 
 AUTH_USER_MODEL = 'users.User'
 LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/'
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
+# ---- Login sosial (Google, Facebook) lewat django-allauth ----
+# Hanya login sosial yang dipakai. Daftar otomatis pada login pertama; pendaftaran/kata sandi lokal ditutup (users/adapters.py).
+# Tombol hanya muncul bila client id/secret diatur lewat variabel lingkungan.
+ACCOUNT_ADAPTER = 'users.adapters.AccountAdapter'
+SOCIALACCOUNT_ADAPTER = 'users.adapters.SocialAccountAdapter'
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+ACCOUNT_LOGIN_METHODS = {'email'}
+ACCOUNT_SIGNUP_FIELDS = ['email*']
+ACCOUNT_EMAIL_VERIFICATION = 'none'
+SOCIALACCOUNT_AUTO_SIGNUP = True
+SOCIALACCOUNT_LOGIN_ON_GET = False  # login sosial lewat POST + CSRF
+# Hubungkan ke akun yang sudah ada dengan email sama HANYA bila penyedia menyatakan email terverifikasi (Google ya;
+# Facebook dianggap tidak terverifikasi sehingga tidak pernah digabung otomatis: mencegah pengambilalihan akun).
+SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
+SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
+SOCIALACCOUNT_PROVIDERS = {}
+if env('GOOGLE_CLIENT_ID') and env('GOOGLE_CLIENT_SECRET'):
+	SOCIALACCOUNT_PROVIDERS['google'] = {
+        'APPS': [{'client_id': env('GOOGLE_CLIENT_ID'), 'secret': env('GOOGLE_CLIENT_SECRET'), 'key': ''}],
+        'SCOPE': ['profile', 'email'], 'AUTH_PARAMS': {'access_type': 'online'},
+    }
+if env('FACEBOOK_APP_ID') and env('FACEBOOK_APP_SECRET'):
+	SOCIALACCOUNT_PROVIDERS['facebook'] = {
+        'APPS': [{'client_id': env('FACEBOOK_APP_ID'), 'secret': env('FACEBOOK_APP_SECRET'), 'key': ''}],
+        'METHOD': 'oauth2', 'SCOPE': ['email', 'public_profile'], 'FIELDS': ['id', 'email', 'name', 'first_name', 'last_name'],
+        'VERIFIED_EMAIL': False,
+    }
 LANGUAGE_CODE = 'en'
 TIME_ZONE = 'Asia/Dili'
 USE_TZ = True

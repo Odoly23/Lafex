@@ -67,7 +67,7 @@ class VocabTests(TestCase):
 		self.assertFalse(any(i['known'] for i in items))
 
 	def test_pages_render(self):
-		self.assertContains(self.client.get('/belajar/kosakata/'), 'Kosa kata')
+		self.assertContains(self.client.get('/belajar/kosakata/'), 'Vokabulario')
 		self.assertContains(self.client.get('/belajar/kosakata/merkadu/'), 'Merkadu')
 
 

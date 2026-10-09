@@ -6,6 +6,7 @@ from django.utils import timezone
 from rest_framework.response import Response
 
 from billing.models import Entitlement, Voucher
+from custom.models import Municipality
 from config.api import APIStaff
 from curriculum.models import Mission
 from progress.models import Activity
@@ -24,7 +25,7 @@ class APIStats(APIStaff):
             'siswa': User.objects.filter(groups__name='estudante').count(),
             'sesaun': Session.objects.filter(finished_at__isnull=False).count(),
             'pakote_ativu': Entitlement.objects.filter(expires_at__gt=now).count(),
-            'vaucher_livre': Voucher.objects.filter(used_by__isnull=True).count(),
+            'vaucher_livre': Voucher.objects.available().count(),
         }
 		return Response(data)
 
@@ -62,8 +63,22 @@ class APIMisaun(APIStaff):
 		return Response({'label': label, 'obj': obj, 'avg': avg})
 
 
+class APIMunisipiu(APIStaff):
+	"""Estudante per munisipiu. `data` memakai hc-key dari database agar langsung dipakai Highcharts Maps (joinBy 'hc-key')."""
+	def get(self, request, format=None):
+		counts = dict(User.objects.filter(groups__name='estudante', municipality__isnull=False)
+                      .values_list('municipality_id').annotate(n=Count('id')))
+		rows = [(m, counts.get(m.pk, 0)) for m in Municipality.objects.all()]
+		rows_sorted = sorted(rows, key=lambda r: (-r[1], r[0].name))
+		return Response({
+            'data': [{'hc-key': m.hckey, 'name': m.name, 'value': n} for m, n in rows if m.hckey],
+            'label': [m.name for m, _ in rows_sorted], 'obj': [n for _, n in rows_sorted],
+            'sem_munisipiu': User.objects.filter(groups__name='estudante', municipality__isnull=True).count(),
+        })
+
+
 class APIVaucher(APIStaff):
 	def get(self, request, format=None):
 		used = Voucher.objects.filter(used_by__isnull=False).count()
-		free = Voucher.objects.filter(used_by__isnull=True).count()
+		free = Voucher.objects.available().count()
 		return Response({'label': ['Uza tiha', 'Seidauk uza'], 'obj': [used, free]})

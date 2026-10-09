@@ -1,8 +1,10 @@
 from django.contrib import admin
 from django.urls import include, path
 
+from allauth.urls import build_provider_urlpatterns
 from billing import views as billing_views
 from curriculum import views as curriculum_views
+from custom import views as custom_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -11,11 +13,13 @@ urlpatterns = [
     path('api/redeem/', billing_views.APIRedeem.as_view()),
     path('api/curriculum/', curriculum_views.APICurriculum.as_view()),
     path('api/report/', include('report.api.urls')),
+    path('api/municipalities/', custom_views.APIMunicipalities.as_view()),
     path('api/', include('progress.api_urls')),
     path('api/', include('vocab.api_urls')),
     path('api/', include('quiz.api_urls')),
     path('api/', include('pronounce.api_urls')),
     path('api/', include('tutor.api_urls')),
+    path('accounts/', include(build_provider_urlpatterns())),  # /accounts/google/login/ dan callback; tanpa tampilan akun lokal
     path('', include('main.urls')),
     path('', include('tutor.urls')),
     path('', include('progress.urls')),

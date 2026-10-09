@@ -16,7 +16,7 @@ from .models import User
 @allowed_users(allowed_roles=['staff', 'admin'])
 def StudentList(request):
 	objects = (User.objects.filter(groups__name='estudante')
-               .select_related('entitlement')
+               .select_related('entitlement', 'municipality')
                .annotate(n_sesaun=Count('sessions', filter=Q(sessions__finished_at__isnull=False)))
                .order_by('-date_joined'))
 	context = {

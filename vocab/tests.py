@@ -69,3 +69,80 @@ class VocabTests(TestCase):
 	def test_pages_render(self):
 		self.assertContains(self.client.get('/belajar/kosakata/'), 'Kosa kata')
 		self.assertContains(self.client.get('/belajar/kosakata/merkadu/'), 'Merkadu')
+
+
+from .importer import parse_lines
+
+
+class ImporterTests(TestCase):
+	def test_parses_separators_and_optional_example(self):
+		rows, errors = parse_lines('livru ; book ; This is a book.\nmeza | table\nkadeira\tchair\n\n')
+		self.assertEqual(rows, [('livru', 'book', 'This is a book.'), ('meza', 'table', ''), ('kadeira', 'chair', '')])
+		self.assertEqual(errors, [])
+
+	def test_reports_bad_lines_with_numbers(self):
+		rows, errors = parse_lines('ok ; fine\njust one word\n ; empty\n' + 'x' * 100 + ' ; too long')
+		self.assertEqual(rows, [('ok', 'fine', '')])
+		self.assertEqual(len(errors), 3)
+		self.assertIn('Liña 2', errors[0])
+
+	def test_caps_line_count(self):
+		rows, errors = parse_lines('\n'.join(f'a{i} ; b{i}' for i in range(250)))
+		self.assertEqual(len(rows), 200)
+		self.assertIn('200', errors[0])
+
+
+class VocabManageTests(TestCase):
+	def setUp(self):
+		seed.run()
+		self.staff = User.objects.create_user('s@x.com', is_staff=True)
+		self.student = User.objects.create_user('e@x.com')
+		self.cat = VocabCategory.objects.get(slug='eskola')
+		self.client.force_login(self.staff)
+
+	def test_roles(self):
+		self.client.force_login(self.student)
+		for url in ('/staff/kosakata/', f'/staff/kosakata/{self.cat.pk}/', '/staff/kosakata/kategoria/novu/'):
+			self.assertEqual(self.client.get(url).status_code, 403, url)
+		self.assertEqual(self.client.post(f'/staff/kosakata/{self.cat.pk}/import/', {'lines': 'a;b'}).status_code, 403)
+
+	def test_category_create_and_unique_slug(self):
+		r = self.client.post('/staff/kosakata/kategoria/novu/', {'slug': 'saude', 'name_tet': 'Saúde', 'name_en': 'Health',
+                                                                 'emoji': '🏥', 'order': 4, 'active': 'on'})
+		self.assertEqual(r.status_code, 302)
+		self.assertTrue(VocabCategory.objects.filter(slug='saude').exists())
+		again = self.client.post('/staff/kosakata/kategoria/novu/', {'slug': 'saude', 'name_tet': 'x', 'name_en': 'x', 'order': 1})
+		self.assertEqual(again.status_code, 200)
+		self.assertEqual(VocabCategory.objects.filter(slug='saude').count(), 1)
+
+	def test_item_create_edit_delete(self):
+		r = self.client.post(f'/staff/kosakata/{self.cat.pk}/item/novu/', {'tet': 'bola', 'en': 'ball', 'example_en': 'A ball.', 'order': 99, 'active': 'on'})
+		self.assertEqual(r.status_code, 302)
+		item = VocabItem.objects.get(en='ball')
+		self.assertEqual(item.category, self.cat)
+		self.client.post(f'/staff/kosakata/item/{item.pk}/edita/', {'tet': 'bola foun', 'en': 'ball', 'order': 99, 'active': 'on'})
+		item.refresh_from_db()
+		self.assertEqual(item.tet, 'bola foun')
+		self.assertEqual(self.client.get(f'/staff/kosakata/item/{item.pk}/hamoos/').status_code, 405, 'hapus hanya lewat POST')
+		self.assertTrue(VocabItem.objects.filter(pk=item.pk).exists())
+		self.client.post(f'/staff/kosakata/item/{item.pk}/hamoos/')
+		self.assertFalse(VocabItem.objects.filter(pk=item.pk).exists())
+
+	def test_item_pages_render_and_unknown_category_404(self):
+		self.assertContains(self.client.get(f'/staff/kosakata/{self.cat.pk}/'), 'Import lista')
+		self.assertEqual(self.client.get('/staff/kosakata/99999/').status_code, 404)
+
+	def test_import_adds_and_updates_without_duplicates(self):
+		before = self.cat.items.count()
+		r = self.client.post(f'/staff/kosakata/{self.cat.pk}/import/', {'lines': 'bola ; ball\nlivru foun ; BOOK ; New example.\nbad line'}, follow=True)
+		self.assertEqual(self.cat.items.count(), before + 1, 'BOOK memperbarui "book" yang sudah ada (tanpa membedakan huruf besar)')
+		self.assertEqual(self.cat.items.get(en='book').tet, 'livru foun')
+		self.assertContains(r, 'Liña 3')
+		self.assertContains(r, '1 foun, 1 atualiza')
+		self.assertEqual(self.client.get(f'/staff/kosakata/{self.cat.pk}/import/').status_code, 405)
+
+	def test_new_items_appear_for_students(self):
+		self.client.post(f'/staff/kosakata/{self.cat.pk}/import/', {'lines': 'bola ; ball'})
+		self.client.force_login(self.student)
+		items = self.client.get('/api/vocab/eskola/').json()['items']
+		self.assertIn('ball', [i['en'] for i in items])

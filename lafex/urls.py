@@ -25,7 +25,12 @@ urlpatterns = [
     path('staff/', include('report.urls')),
     path('staff/siswa/', include('users.staff_urls')),
     path('staff/vaucher/', include('billing.staff_urls')),
+    path('staff/pengaturan/', include('config.staff_urls')),
     path('staff/misaun/', include('curriculum.staff_urls')),
+    path('staff/materi/', include('curriculum.hub_urls')),
+    path('staff/kosakata/', include('vocab.staff_urls')),
+    path('staff/quiz/', include('quiz.staff_urls')),
+    path('staff/monitoring/', include('report.monitoring_urls')),
 ]
 
 handler403 = 'main.views.error_403'

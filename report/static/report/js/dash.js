@@ -12,7 +12,7 @@ function chart(id, type, data, opts = {}) {
 (async () => {
   try {
     const s = await getJSON('/api/report/stats/');
-    for (const k of ['siswa', 'sesaun', 'pakote_ativu', 'vaucher_livre']) $('st-' + k).textContent = s[k];
+    for (const k of ['aktif_ohin', 'total_chat', 'siswa', 'sesaun', 'pakote_ativu', 'vaucher_livre']) $('st-' + k).textContent = s[k];
 
     const daily = await getJSON('/api/report/sesaun-daily/');
     chart('ch-daily', 'line', { labels: daily.label, datasets: [{ data: daily.obj, borderColor: GREEN, backgroundColor: GREEN_LT, fill: true, tension: .3 }] },

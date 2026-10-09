@@ -8,14 +8,19 @@ from rest_framework.response import Response
 from billing.models import Entitlement, Voucher
 from config.api import APIStaff
 from curriculum.models import Mission
-from tutor.models import Session
+from progress.models import Activity
+from tutor.models import Session, Turn
 from users.models import LEVELS, User
 
 
 class APIStats(APIStaff):
 	def get(self, request, format=None):
 		now = timezone.now()
+		day_start = timezone.make_aware(datetime.combine(timezone.localdate(), time.min))  # tanpa fungsi tanggal DB
 		data = {
+            'aktif_ohin': Activity.objects.filter(created_at__gte=day_start, user__groups__name='estudante')
+                          .values('user').distinct().count(),
+            'total_chat': Turn.objects.filter(role='user').count(),
             'siswa': User.objects.filter(groups__name='estudante').count(),
             'sesaun': Session.objects.filter(finished_at__isnull=False).count(),
             'pakote_ativu': Entitlement.objects.filter(expires_at__gt=now).count(),
@@ -26,7 +31,7 @@ class APIStats(APIStaff):
 
 class APISesaunDaily(APIStaff):
 	"""Sesi selesai per hari, 14 hari terakhir (hari tanpa sesi tetap muncul dengan 0).
-	Dihitung di Python: fungsi tanggal berzona waktu di MySQL butuh tabel zona waktu yang sering belum dimuat."""
+    Dihitung di Python: fungsi tanggal berzona waktu di MySQL butuh tabel zona waktu yang sering belum dimuat."""
 	def get(self, request, format=None):
 		today = timezone.localdate()
 		days = [today - timedelta(days=i) for i in range(13, -1, -1)]

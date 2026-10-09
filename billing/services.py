@@ -27,6 +27,21 @@ def is_active(user):
 
 
 @transaction.atomic
+def grant_plan(user, plan):
+	"""Tambah masa aktif sesuai paket (di belakang masa aktif yang masih berjalan). Dipakai voucher dan admin."""
+	ent = Entitlement.objects.select_for_update().filter(user=user).first()
+	now = timezone.now()
+	base = max(now, ent.expires_at) if ent else now
+	new_exp = base + timedelta(hours=plan.hours)
+	if ent:
+		ent.expires_at = new_exp
+		ent.save(update_fields=['expires_at'])
+	else:
+		Entitlement.objects.create(user=user, expires_at=new_exp)
+	return new_exp
+
+
+@transaction.atomic
 def redeem(user, raw_code):
 	"""Voucher sekali pakai. Jika paket masih aktif, waktunya ditambahkan di belakangnya."""
 	code = (raw_code or '').strip().upper()
@@ -35,15 +50,8 @@ def redeem(user, raw_code):
 		raise VoucherError('voucher_unknown')
 	if v.used_by_id:
 		raise VoucherError('voucher_used')
-	ent = Entitlement.objects.select_for_update().filter(user=user).first()
+	new_exp = grant_plan(user, v.plan)
 	now = timezone.now()
-	base = max(now, ent.expires_at) if ent else now
-	new_exp = base + timedelta(hours=v.plan.hours)
-	if ent:
-		ent.expires_at = new_exp
-		ent.save(update_fields=['expires_at'])
-	else:
-		Entitlement.objects.create(user=user, expires_at=new_exp)
 	v.used_by, v.used_at = user, now
 	v.save(update_fields=['used_by', 'used_at'])
 	return new_exp

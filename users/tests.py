@@ -104,3 +104,58 @@ class LoginCodeTests(TestCase):
 		post(self.client, "/api/auth/verify/", {"email": "maria@example.com", "code": code})
 		self.assertEqual(User.objects.get().groups.get().name, "estudante")
 		self.assertEqual(self.client.get("/api/me/").status_code, 200)
+
+
+class StudentManageTests(TestCase):
+	def setUp(self):
+		from curriculum import seed
+		seed.run()
+		self.admin = User.objects.create_superuser('a@x.com')
+		self.staff = User.objects.create_user('s@x.com', is_staff=True)
+		self.student = User.objects.create_user('e@x.com')
+
+	def post(self, user, pk, data):
+		self.client.force_login(user)
+		return self.client.post(f'/staff/siswa/{pk}/', data)
+
+	def test_access_by_role(self):
+		self.client.force_login(self.student)
+		self.assertEqual(self.client.get(f'/staff/siswa/{self.student.pk}/').status_code, 403)
+		for u in (self.staff, self.admin):
+			self.client.force_login(u)
+			self.assertEqual(self.client.get(f'/staff/siswa/{self.student.pk}/').status_code, 200)
+
+	def test_only_students_are_editable_here(self):
+		self.client.force_login(self.admin)
+		for other in (self.staff, self.admin):
+			self.assertEqual(self.client.get(f'/staff/siswa/{other.pk}/').status_code, 404, other.email)
+
+	def test_staff_edits_basic_fields(self):
+		r = self.post(self.staff, self.student.pk, {'name': 'Maria', 'level': 'B1', 'is_active': 'on'})
+		self.assertEqual(r.status_code, 302)
+		self.student.refresh_from_db()
+		self.assertEqual((self.student.name, self.student.level, self.student.is_active), ('Maria', 'B1', True))
+		self.post(self.staff, self.student.pk, {'name': 'Maria', 'level': 'B1'})  # is_active tidak dicentang
+		self.student.refresh_from_db()
+		self.assertFalse(self.student.is_active)
+
+	def test_staff_cannot_grant_plan_but_admin_can(self):
+		from billing import services as billing
+		from billing.models import Plan
+		plan = Plan.objects.get(code='7d')
+		self.client.force_login(self.staff)
+		self.assertNotIn('grant_plan', self.client.get(f'/staff/siswa/{self.student.pk}/').content.decode())
+		self.post(self.staff, self.student.pk, {'name': '', 'level': 'A1', 'is_active': 'on', 'grant_plan': plan.pk})
+		self.assertFalse(billing.is_active(self.student), 'staff mengirim grant_plan manual tetap diabaikan')
+		self.post(self.admin, self.student.pk, {'name': '', 'level': 'A1', 'is_active': 'on', 'grant_plan': plan.pk})
+		self.assertTrue(billing.is_active(self.student))
+
+	def test_invalid_level_rejected(self):
+		r = self.post(self.admin, self.student.pk, {'name': 'x', 'level': 'Z9', 'is_active': 'on'})
+		self.assertEqual(r.status_code, 200)
+		self.student.refresh_from_db()
+		self.assertEqual(self.student.level, 'A1')
+
+	def test_list_links_to_edit(self):
+		self.client.force_login(self.staff)
+		self.assertIn(f'/staff/siswa/{self.student.pk}/', self.client.get('/staff/siswa/').content.decode())

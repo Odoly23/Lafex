@@ -1,0 +1,38 @@
+{% extends 'main/layout.html' %}{% load static %}
+{% block head %}<link rel="stylesheet" href="{% static 'main/css/dataTables.bootstrap4.min.css' %}">{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center flex-wrap">
+	<h1 class="h5 legend">{{ legend }}</h1>
+	{% if not batch.voided_at %}
+	<form method="post" action="{% url 'voucher_batch_void' batch.pk %}" onsubmit="return confirm('Kansela batch ne\'e? Vaucher ne\'ebé seidauk uza sei la válidu tan.')" class="mb-3">{% csrf_token %}
+		<button class="btn btn-outline-danger" type="submit"><i class="fa fa-ban"></i> Kansela batch</button>
+	</form>
+	{% endif %}
+</div>
+<p class="note">{{ batch.plan.label }} (${{ batch.plan.price_usd }}) · {{ batch.quantity }} vaucher · kria {{ batch.created_at|date:"d/m/Y H:i" }} · válidu to'o {{ batch.valid_until|date:"d/m/Y" }}
+	{% if batch.voided_at %}· <span class="badge badge-danger">Kansela {{ batch.voided_at|date:"d/m/Y" }}</span>{% endif %}</p>
+<div class="card"><div class="card-body table-responsive">
+	<table class="table table-striped table-bordered js-table" style="width:100%">
+		<thead><tr><th>Nu. seri</th><th>Estatutu</th><th>Uza husi</th><th>Data uza</th><th></th></tr></thead>
+		<tbody>
+		{% for v in objects %}
+			<tr>
+				<td><code>{{ v.serial }}</code></td>
+				<td>{% if v.status == 'used' %}<span class="badge badge-primary">Uza</span>{% elif v.status == 'void' %}<span class="badge badge-danger">Kansela</span>{% elif v.status == 'expired' %}<span class="badge badge-secondary">Expira</span>{% else %}<span class="badge badge-success">Disponivel</span>{% endif %}</td>
+				<td>{{ v.used_by.email|default:"-" }}</td>
+				<td>{{ v.used_at|date:"d/m/Y H:i"|default:"-" }}</td>
+				<td>{% if v.status == 'available' %}
+					<form method="post" action="{% url 'voucher_void' v.pk %}" class="d-inline" onsubmit="return confirm('Kansela vaucher {{ v.serial }}?')">{% csrf_token %}<button class="btn btn-link text-danger p-0" type="submit"><i class="fa fa-ban"></i> Kansela</button></form>
+				{% endif %}</td>
+			</tr>
+		{% endfor %}
+		</tbody>
+	</table>
+</div></div>
+<p class="mt-3"><a href="{% url 'voucher_list' %}">{{ T.back }}</a></p>
+{% endblock %}
+{% block scripts %}
+<script src="{% static 'main/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'main/js/dataTables.bootstrap4.min.js' %}"></script>
+<script src="{% static 'main/js/tables.js' %}"></script>
+{% endblock %}

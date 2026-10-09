@@ -1,0 +1,30 @@
+{% extends 'main/layout.html' %}{% load static %}
+{% block head %}<link rel="stylesheet" href="{% static 'main/css/dataTables.bootstrap4.min.css' %}">{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center flex-wrap">
+	<h1 class="h4 legend">{{ legend }}</h1>
+	<a class="btn btn-primary mb-3" href="{% url 'vocab_category_new' %}"><i class="fa fa-plus"></i> Kategoria foun</a>
+</div>
+<div class="card"><div class="card-body table-responsive">
+	<table class="table table-striped table-bordered js-table" style="width:100%">
+		<thead><tr><th></th><th>Naran (Tetun)</th><th>Naran (Inglés)</th><th>Vokabulario ativu</th><th>Ativu</th><th></th></tr></thead>
+		<tbody>
+		{% for c in objects %}
+			<tr>
+				<td>{{ c.emoji }}</td>
+				<td><a href="{% url 'vocab_items' c.pk %}">{{ c.name_tet }}</a></td>
+				<td>{{ c.name_en }}</td>
+				<td>{{ c.n_items }}</td>
+				<td>{% if c.active %}<i class="fa fa-check text-success" aria-label="Sim"></i>{% else %}<i class="fa fa-times text-danger" aria-label="Lae"></i>{% endif %}</td>
+				<td><a href="{% url 'vocab_items' c.pk %}"><i class="fa fa-list"></i> Vokabulario</a> · <a href="{% url 'vocab_category_edit' c.pk %}"><i class="fa fa-pencil"></i> Edita</a></td>
+			</tr>
+		{% endfor %}
+		</tbody>
+	</table>
+</div></div>
+{% endblock %}
+{% block scripts %}
+<script src="{% static 'main/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'main/js/dataTables.bootstrap4.min.js' %}"></script>
+<script src="{% static 'main/js/tables.js' %}"></script>
+{% endblock %}

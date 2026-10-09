@@ -1,0 +1,41 @@
+<!-- Sidebar HP: ikon + label kecil, mendorong isi halaman (bukan menimpa) -->
+<aside id="sidebar" aria-label="Menu">
+	<div class="sb-body">
+		<ul>
+			{% if group == 'staff' or group == 'admin' %}
+				<li class="{% if page == 'dashboard' %}sb-on{% endif %}"><a href="/staff/"><i class="fa fa-dashboard"></i>{{ T.sb_dashboard }}</a></li>
+				<li class="sb-sec">{{ T.nav_master }}</li>
+				<li class="{% if page == 'siswa' %}sb-on{% endif %}"><a href="/staff/siswa/"><i class="fa fa-users"></i>{{ T.sb_students }}</a></li>
+				<li class="{% if page == 'materi' or page == 'misaun' or page == 'kosakatamaster' %}sb-on{% endif %}"><a href="/staff/materi/"><i class="fa fa-book"></i>{{ T.sb_materials }}</a></li>
+				<li class="{% if page == 'quizsoal' %}sb-on{% endif %}"><a href="/staff/quiz/"><i class="fa fa-question-circle"></i>{{ T.sb_quizq }}</a></li>
+				<li class="sb-sec">{{ T.nav_monitoring }}</li>
+				<li class="{% if page == 'monchat' %}sb-on{% endif %}"><a href="/staff/monitoring/chat/"><i class="fa fa-comments"></i>{{ T.sb_monchat }}</a></li>
+				<li class="{% if page == 'monpron' %}sb-on{% endif %}"><a href="/staff/monitoring/pronunciation/"><i class="fa fa-microphone"></i>{{ T.sb_monpron }}</a></li>
+				{% if group == 'admin' %}
+					<li class="sb-sec">{{ T.sb_admin_sec }}</li>
+					<li class="{% if page == 'config' %}sb-on{% endif %}"><a href="/staff/pengaturan/"><i class="fa fa-sliders"></i>{{ T.sb_config }}</a></li>
+					<li class="{% if page == 'vaucher' %}sb-on{% endif %}"><a href="/staff/vaucher/"><i class="fa fa-ticket"></i>{{ T.sb_vouchers }}</a></li>
+				{% endif %}
+				<li class="sb-sec">{{ T.nav_student_mode }}</li>
+				<li><a href="/"><i class="fa fa-home"></i>{{ T.nav_home }}</a></li>
+				<li><a href="/belajar/ngobrol/"><i class="fa fa-comments"></i>{{ T.sb_chat }}</a></li>
+				<li><a href="/profil/"><i class="fa fa-id-card"></i>{{ T.sb_profile }}</a></li>
+			{% else %}
+				<li class="{% if page == 'home' %}sb-on{% endif %}"><a href="/"><i class="fa fa-home"></i>{{ T.nav_home }}</a></li>
+				<li class="sb-sec">{{ T.sb_learn_sec }}</li>
+				<li class="{% if page == 'ngobrol' %}sb-on{% endif %}"><a href="/belajar/ngobrol/"><i class="fa fa-comments"></i>{{ T.sb_chat }}</a></li>
+				<li class="{% if page == 'situasaun' or page == 'mission' %}sb-on{% endif %}"><a href="/belajar/situasaun/"><i class="fa fa-map-signs"></i>{{ T.sb_situations }}</a></li>
+				<li class="{% if page == 'kosakata' %}sb-on{% endif %}"><a href="/belajar/kosakata/"><i class="fa fa-language"></i>{{ T.sb_vocab }}</a></li>
+				<li class="{% if page == 'grammar' %}sb-on{% endif %}"><a href="/belajar/grammar/"><i class="fa fa-pencil"></i>{{ T.sb_grammar }}</a></li>
+				<li class="sb-sec">{{ T.sb_practice_sec }}</li>
+				<li class="{% if page == 'quiz' %}sb-on{% endif %}"><a href="/latihan/quiz/"><i class="fa fa-clock-o"></i>{{ T.sb_quiz }}</a></li>
+				<li class="{% if page == 'pron' %}sb-on{% endif %}"><a href="/latihan/pronunciation/"><i class="fa fa-microphone"></i>{{ T.sb_pron }}</a></li>
+				<hr>
+				<li class="{% if page == 'profil' %}sb-on{% endif %}"><a href="/profil/"><i class="fa fa-id-card"></i>{{ T.sb_profile }}</a></li>
+				<li class="{% if page == 'review' %}sb-on{% endif %}"><a href="/review/"><i class="fa fa-book"></i>{{ T.sb_review }}</a></li>
+			{% endif %}
+			<hr>
+			<li><a href="#" data-logout><i class="fa fa-sign-out"></i>{{ T.logout }}</a></li>
+		</ul>
+	</div>
+</aside>

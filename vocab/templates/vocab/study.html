@@ -1,0 +1,40 @@
+{% extends 'main/layout.html' %}{% load static %}
+{% block content %}
+<div class="row justify-content-center">
+	<div class="col-lg-6" id="study" data-slug="{{ category.slug }}">
+		<h1 class="h4 legend">{{ category.emoji }} {{ category.name_tet }} <small class="text-muted">/ {{ category.name_en }}</small></h1>
+		<div class="progress mb-3" style="height:10px"><div id="bar" class="progress-bar bg-success" style="width:0"></div></div>
+
+		<div id="card" class="card shadow-sm text-center" hidden>
+			<div class="card-body py-5">
+				<div id="c-tet" class="display-4 font-weight-bold" aria-live="polite"></div>
+				<div id="c-answer" hidden>
+					<div id="c-en" class="h2 text-primary mt-3"></div>
+					<p id="c-ex" class="note"></p>
+					<button id="btn-say" class="btn btn-outline-primary" type="button"><i class="fa fa-volume-up"></i> {{ T.vocab_say }}</button>
+				</div>
+			</div>
+			<div class="card-footer bg-white">
+				<button id="btn-show" class="btn btn-primary btn-lg btn-block" type="button">{{ T.vocab_show }}</button>
+				<div id="grade" class="row" hidden>
+					<div class="col-6"><button id="btn-no" class="btn btn-outline-secondary btn-lg btn-block" type="button">{{ T.vocab_not_yet }}</button></div>
+					<div class="col-6"><button id="btn-yes" class="btn btn-primary btn-lg btn-block" type="button"><i class="fa fa-check"></i> {{ T.vocab_i_know }}</button></div>
+				</div>
+			</div>
+		</div>
+
+		<div id="done" class="card shadow-sm text-center" hidden>
+			<div class="card-body">
+				{% include 'main/_mascot.html' with size='120' %}
+				<h2 class="h4">{{ T.vocab_done }}</h2>
+				<p id="d-sum" class="note"></p>
+				<button id="btn-again" class="btn btn-primary btn-block" type="button">{{ T.vocab_again }}</button>
+				<a class="btn btn-link btn-block" href="/belajar/kosakata/">{{ T.back }}</a>
+			</div>
+		</div>
+		<p id="empty" class="note" hidden>{{ T.vocab_empty }}</p>
+		<p id="msg" class="msg" role="alert"></p>
+	</div>
+</div>
+{% endblock %}
+{% block scripts %}<script type="module" src="{% static 'main/js/vocab_study.js' %}"></script>{% endblock %}

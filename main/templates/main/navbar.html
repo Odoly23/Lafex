@@ -1,0 +1,102 @@
+{% load static %}
+<div class="topbar">
+	<div class="container">
+		<div class="tb-left"><span>Lafaek Exploration</span><span>{{ T.tagline }}</span></div>
+		<div class="tb-right" id="status" aria-live="polite"></div>
+	</div>
+</div>
+
+<nav class="main-navbar" aria-label="Menu">
+	<div class="container">
+		<a class="brand" href="/">
+			<img src="{% static 'main/images/lafaek-head.png' %}" alt="">
+			<span>Lafex</span>
+		</a>
+
+		{% if user.is_authenticated %}
+		<ul class="nav-links">
+			{% if group == 'staff' or group == 'admin' %}
+				<li><a href="/staff/" {% if page == 'dashboard' %}class="on" aria-current="page"{% endif %}><i class="fa fa-dashboard"></i> {{ T.nav_dashboard }}</a></li>
+
+				<li class="dropdown">
+					<a href="#" class="dropdown-toggle grp {% if page == 'siswa' or page == 'materi' or page == 'misaun' or page == 'kosakatamaster' or page == 'quizsoal' %}on{% endif %}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-database"></i> {{ T.nav_master }}</a>
+					<div class="dropdown-menu">
+						<a class="dropdown-item" href="/staff/siswa/"><i class="fa fa-users"></i> {{ T.nav_students_manage }}</a>
+						<a class="dropdown-item" href="/staff/materi/"><i class="fa fa-book"></i> {{ T.nav_materials }}</a>
+						<a class="dropdown-item" href="/staff/quiz/"><i class="fa fa-question-circle"></i> {{ T.nav_quiz_questions }}</a>
+					</div>
+				</li>
+
+				<li class="dropdown">
+					<a href="#" class="dropdown-toggle grp {% if page == 'monchat' or page == 'monpron' %}on{% endif %}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-eye"></i> {{ T.nav_monitoring }}</a>
+					<div class="dropdown-menu">
+						<a class="dropdown-item" href="/staff/monitoring/chat/"><i class="fa fa-comments"></i> {{ T.nav_mon_chat }}</a>
+						<a class="dropdown-item" href="/staff/monitoring/pronunciation/"><i class="fa fa-microphone"></i> {{ T.nav_mon_pron }}</a>
+					</div>
+				</li>
+
+				{% if group == 'admin' %}
+				<li class="dropdown">
+					<a href="#" class="dropdown-toggle grp {% if page == 'config' or page == 'vaucher' %}on{% endif %}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-cogs"></i> {{ T.nav_settings_group }}</a>
+					<div class="dropdown-menu">
+						<a class="dropdown-item" href="/staff/pengaturan/"><i class="fa fa-sliders"></i> {{ T.nav_settings }}</a>
+						<a class="dropdown-item" href="/staff/vaucher/"><i class="fa fa-ticket"></i> {{ T.nav_vouchers }}</a>
+					</div>
+				</li>
+				{% endif %}
+
+				<li class="dropdown">
+					<a href="#" class="dropdown-toggle grp" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-graduation-cap"></i> {{ T.nav_student_mode }}</a>
+					<div class="dropdown-menu">
+						<a class="dropdown-item" href="/">{{ T.nav_home }}</a>
+						<a class="dropdown-item" href="/belajar/ngobrol/">{{ T.nav_chat }}</a>
+						<a class="dropdown-item" href="/belajar/situasaun/">{{ T.nav_situations }}</a>
+						<a class="dropdown-item" href="/belajar/kosakata/">{{ T.nav_vocab }}</a>
+						<a class="dropdown-item" href="/belajar/grammar/">{{ T.nav_grammar }}</a>
+						<a class="dropdown-item" href="/latihan/quiz/">{{ T.nav_quiz }}</a>
+						<a class="dropdown-item" href="/latihan/pronunciation/">{{ T.nav_pron }}</a>
+						<a class="dropdown-item" href="/profil/">{{ T.nav_profile }}</a>
+					</div>
+				</li>
+			{% else %}
+				<li><a href="/" {% if page == 'home' %}class="on" aria-current="page"{% endif %}><i class="fa fa-home"></i> {{ T.nav_home }}</a></li>
+
+				<li class="dropdown">
+					<a href="#" class="dropdown-toggle grp {% if page == 'ngobrol' or page == 'situasaun' or page == 'kosakata' or page == 'grammar' or page == 'review' or page == 'mission' %}on{% endif %}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-graduation-cap"></i> {{ T.nav_learn }}</a>
+					<div class="dropdown-menu">
+						<a class="dropdown-item" href="/belajar/ngobrol/"><i class="fa fa-comments"></i> {{ T.nav_chat }}</a>
+						<a class="dropdown-item" href="/belajar/situasaun/"><i class="fa fa-map-signs"></i> {{ T.nav_situations }}</a>
+						<a class="dropdown-item" href="/belajar/kosakata/"><i class="fa fa-language"></i> {{ T.nav_vocab }}</a>
+						<a class="dropdown-item" href="/belajar/grammar/"><i class="fa fa-pencil"></i> {{ T.nav_grammar }}</a>
+						<div class="dropdown-divider"></div>
+						<a class="dropdown-item" href="/review/"><i class="fa fa-book"></i> {{ T.nav_review }}</a>
+					</div>
+				</li>
+
+				<li class="dropdown">
+					<a href="#" class="dropdown-toggle grp {% if page == 'quiz' or page == 'pron' %}on{% endif %}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-trophy"></i> {{ T.nav_practice }}</a>
+					<div class="dropdown-menu">
+						<a class="dropdown-item" href="/latihan/quiz/"><i class="fa fa-clock-o"></i> {{ T.nav_quiz }}</a>
+						<a class="dropdown-item" href="/latihan/pronunciation/"><i class="fa fa-microphone"></i> {{ T.nav_pron }}</a>
+					</div>
+				</li>
+
+				<li><a href="/profil/" {% if page == 'profil' %}class="on" aria-current="page"{% endif %}><i class="fa fa-id-card"></i> {{ T.nav_profile }}</a></li>
+			{% endif %}
+
+			<li class="dropdown">
+				<a href="#" class="dropdown-toggle" id="userMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="{{ T.nav_account }}">
+					<span class="av"><i class="fa fa-user"></i></span>
+				</a>
+				<div class="dropdown-menu dropdown-menu-right" aria-labelledby="userMenu">
+					<span class="dropdown-item-text small text-muted" id="nav-email"></span>
+					{% if user.is_staff %}<a class="dropdown-item" href="/admin/"><i class="fa fa-cog"></i> {{ T.nav_admin }}</a>{% endif %}
+					<div class="dropdown-divider"></div>
+					<button type="button" class="dropdown-item text-danger" data-logout><i class="fa fa-sign-out"></i> {{ T.logout }}</button>
+				</div>
+			</li>
+		</ul>
+		<button class="btn-ham" id="btn-ham" type="button" aria-label="{{ T.nav_menu }}" aria-controls="sidebar" aria-expanded="false"><i class="fa fa-bars"></i></button>
+		{% endif %}
+	</div>
+</nav>

@@ -1,0 +1,22 @@
+{% extends 'main/layout.html' %}
+{% block content %}
+<div class="row justify-content-center"><div class="col-lg-8">
+	<h1 class="h5 legend">{{ legend }}</h1>
+	<p class="note">{{ session.started_at|date:"d/m/Y H:i" }}{% if session.score is not None %} · Pontu {{ session.score }} · Nível {{ session.level_end }}{% endif %}</p>
+	<div id="chat" style="max-height:none">
+		{% for t in turns %}
+			<div class="bubble {% if t.role == 'user' %}user{% else %}tutor{% endif %}">
+				<div>{{ t.text }}</div>
+				{% if t.correction or t.explanation %}<div class="fix">{% if t.correction %}{{ T.fix }}: {{ t.correction }}<br>{% endif %}{{ t.explanation }}</div>{% endif %}
+			</div>
+		{% endfor %}
+	</div>
+	{% if session.summary %}
+		<div class="card mt-3"><div class="card-body">
+			<p class="lead mb-1">{{ session.summary.headline }}</p>
+			{% if session.summary.tips %}<ul>{% for tip in session.summary.tips %}<li>{{ tip }}</li>{% endfor %}</ul>{% endif %}
+		</div></div>
+	{% endif %}
+	<p class="mt-3"><a href="/staff/monitoring/chat/">{{ T.back }}</a></p>
+</div></div>
+{% endblock %}

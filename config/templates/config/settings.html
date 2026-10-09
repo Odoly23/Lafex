@@ -1,0 +1,65 @@
+{% extends 'main/layout.html' %}
+{% block content %}
+<h1 class="h4 legend">{{ legend }}</h1>
+<form method="post">
+	{% csrf_token %}
+	<div class="row">
+		<div class="col-lg-7 mb-3">
+			<div class="card h-100">
+				<div class="card-header"><i class="fa fa-comments"></i> Maun Lafaek</div>
+				<div class="card-body">
+					{{ form.non_field_errors }}
+					<div class="form-group">
+						<label for="{{ form.tutor_prompt_extra.id_for_label }}">{{ form.tutor_prompt_extra.label }}</label>
+						{{ form.tutor_prompt_extra }}
+						<small class="form-text text-muted">{{ form.tutor_prompt_extra.help_text }} Maksimu karakter 2000. Ezemplu: <em>"Uza ezemplu husi moris loron-loron iha Timor-Leste."</em></small>
+						{% for e in form.tutor_prompt_extra.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+					</div>
+					<div class="alert alert-light border small mb-0">Aturan dasar (formatu JSON, koreksaun, seguransa estudante) la bele ubah husi ne'e. Mudansa sei taka efeitu to'o segundu 30.</div>
+				</div>
+			</div>
+		</div>
+		<div class="col-lg-5 mb-3">
+			<div class="card h-100">
+				<div class="card-header"><i class="fa fa-ticket"></i> Modu gratis / pakote</div>
+				<div class="card-body">
+					<div class="form-group form-check pl-4">
+						{{ form.payments_required }}<label class="form-check-label" for="{{ form.payments_required.id_for_label }}">{{ form.payments_required.label }}</label>
+					</div>
+					<div class="form-group">
+						<label for="{{ form.free_turns_per_day.id_for_label }}">{{ form.free_turns_per_day.label }}</label>{{ form.free_turns_per_day }}
+						{% for e in form.free_turns_per_day.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+					</div>
+					<div class="form-group">
+						<label for="{{ form.paid_turns_per_day.id_for_label }}">{{ form.paid_turns_per_day.label }}</label>{{ form.paid_turns_per_day }}
+						{% for e in form.paid_turns_per_day.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="card mb-3">
+		<div class="card-header"><i class="fa fa-dollar"></i> Folin pakote (USD)</div>
+		<div class="card-body table-responsive">
+			{{ formset.management_form }}
+			{{ formset.non_form_errors }}
+			<table class="table table-bordered">
+				<thead><tr><th>Naran</th><th style="width:130px">Folin (USD)</th><th style="width:110px">Oras</th><th style="width:80px">Ativu</th></tr></thead>
+				<tbody>
+				{% for f in formset %}
+					<tr>
+						<td>{{ f.id }}{{ f.label }}{% for e in f.label.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}</td>
+						<td>{{ f.price_usd }}{% for e in f.price_usd.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}</td>
+						<td>{{ f.hours }}{% for e in f.hours.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}</td>
+						<td class="text-center"><div class="form-check">{{ f.active }}</div></td>
+					</tr>
+				{% endfor %}
+				</tbody>
+			</table>
+			<small class="text-muted">Oras: 24 = loron 1, 168 = loron 7, 720 = fulan 1. Estudante ne'ebé iha pakote ativu la afeta husi mudansa folin.</small>
+		</div>
+	</div>
+	<button class="btn btn-primary btn-lg" type="submit"><i class="fa fa-save"></i> {{ T.profile_save }}</button>
+</form>
+{% endblock %}

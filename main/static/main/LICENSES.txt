@@ -1,0 +1,14 @@
+Library pihak ketiga (disimpan lokal agar aplikasi jalan offline, tanpa CDN):
+
+Bootstrap 4.6.2            MIT          https://getbootstrap.com
+jQuery 3.7.1               MIT          https://jquery.com
+Popper.js 1.16.1 (dalam bootstrap.bundle)  MIT
+DataTables 1.13.11 (+ integrasi Bootstrap 4)  MIT   https://datatables.net
+Font Awesome 4.7.0         ikon: SIL OFL 1.1, CSS: MIT   https://fontawesome.com/v4/
+Chart.js 4.4.7             MIT          https://www.chartjs.org
+
+Highmaps 11.4.8 (main/static/main/charts/highmaps.js) + data peta Timor-Leste (tl-all.geo.json, @highcharts/map-collection 2.2.0)
+  PERHATIAN: BUKAN open source. Gratis hanya untuk penggunaan non-komersial (Creative Commons BY-NC 3.0:
+  organisasi nirlaba, pribadi, pendidikan). Untuk produk komersial (mis. menjual paket/voucher) wajib membeli
+  lisensi Highmaps: https://shop.highsoft.com/highmaps . Data peta mengikuti lisensi yang sama.
+  Kode peta terisolasi di report/static/report/js/dash.js (fungsi drawMap) agar mudah diganti bila perlu.

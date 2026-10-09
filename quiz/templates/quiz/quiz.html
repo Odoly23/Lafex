@@ -1,0 +1,39 @@
+{% extends 'main/layout.html' %}{% load static %}
+{% block content %}
+<div class="row justify-content-center">
+	<div class="col-lg-8">
+		<div id="intro" class="card shadow-sm text-center">
+			<div class="card-body">
+				{% include 'main/_mascot.html' with size='140' %}
+				<h1 class="h4">{{ T.quiz_title }}</h1>
+				<p>{{ T.quiz_intro }}</p>
+				<button id="btn-start" class="btn btn-primary btn-lg btn-block" type="button">{{ T.quiz_start }}</button>
+			</div>
+		</div>
+
+		<form id="quiz" hidden>
+			<div class="sticky-top bg-white border rounded p-2 mb-3 d-flex justify-content-between align-items-center" style="top: calc(var(--header-h) + 6px)">
+				<strong>{{ T.quiz_time }}: <span id="timer" aria-live="off">5:00</span></strong>
+				<span class="note"><span id="answered">0</span>/<span id="qn">0</span> {{ T.quiz_answered }}</span>
+			</div>
+			<div id="qs"></div>
+			<button id="btn-submit" class="btn btn-primary btn-lg btn-block mb-4" type="submit">{{ T.quiz_submit }}</button>
+		</form>
+
+		<div id="result" hidden>
+			<div class="card shadow-sm mb-3">
+				<div class="card-body text-center">
+					<h1 class="h4">{{ T.quiz_result }}</h1>
+					<p class="score"><span id="r-score"></span><small>/<span id="r-total"></span> {{ T.quiz_correct }}</small></p>
+					<p id="r-points" class="note"></p>
+					<p id="r-late" class="msg" hidden>{{ T.quiz_late }}</p>
+					<button id="btn-again" class="btn btn-primary" type="button">{{ T.quiz_start }}</button>
+				</div>
+			</div>
+			<div id="review"></div>
+		</div>
+		<p id="msg" class="msg mt-2" role="alert"></p>
+	</div>
+</div>
+{% endblock %}
+{% block scripts %}<script type="module" src="{% static 'main/js/quiz.js' %}"></script>{% endblock %}

@@ -1,0 +1,46 @@
+{% extends 'main/layout.html' %}{% load static %}
+{% block head %}<link rel="stylesheet" href="{% static 'main/css/dataTables.bootstrap4.min.css' %}">{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center flex-wrap">
+	<h1 class="h4 legend">{{ legend }}</h1>
+	<a class="btn btn-primary mb-3" href="{% url 'quiz_question_new' %}"><i class="fa fa-plus"></i> Pergunta foun</a>
+</div>
+<div class="card mb-3"><div class="card-body table-responsive">
+	<table class="table table-striped table-bordered js-table" style="width:100%">
+		<thead><tr><th>Pergunta</th><th>Opsaun</th><th>Resposta</th><th>Band</th><th>Ativu</th><th></th></tr></thead>
+		<tbody>
+		{% for q in objects %}
+			<tr>
+				<td>{{ q.question }}</td>
+				<td class="small">A. {{ q.choice_a }}<br>B. {{ q.choice_b }}<br>C. {{ q.choice_c }}<br>D. {{ q.choice_d }}</td>
+				<td><strong>{{ q.get_answer_display }}</strong></td>
+				<td>{{ q.get_band_display }}</td>
+				<td>{% if q.active %}<i class="fa fa-check text-success" aria-label="Sim"></i>{% else %}<i class="fa fa-times text-danger" aria-label="Lae"></i>{% endif %}</td>
+				<td class="text-nowrap">
+					<a href="{% url 'quiz_question_edit' q.pk %}"><i class="fa fa-pencil"></i> Edita</a>
+					<form method="post" action="{% url 'quiz_question_delete' q.pk %}" class="d-inline" onsubmit="return confirm('Hamoos pergunta ne\'e?')">{% csrf_token %}<button class="btn btn-link text-danger p-0 ml-2" type="submit"><i class="fa fa-trash"></i> Hamoos</button></form>
+				</td>
+			</tr>
+		{% endfor %}
+		</tbody>
+	</table>
+</div></div>
+
+<div class="card">
+	<div class="card-header"><i class="fa fa-upload"></i> Import lista (tempel teks)</div>
+	<div class="card-body">
+		<form method="post" action="{% url 'quiz_import' %}">
+			{% csrf_token %}
+			<p class="note mb-2">Liña ida = <code>pergunta | A | B | C | D | resposta (a-d) | esplikasaun Tetun (opsionál)</code>. Pergunta ne'ebé hanesan sei atualiza. Maksimu 100 liña.</p>
+			<div class="form-group">{{ import_form.band.label_tag }} {{ import_form.band }}</div>
+			<div class="form-group">{{ import_form.lines }}</div>
+			<button class="btn btn-primary" type="submit"><i class="fa fa-upload"></i> Import</button>
+		</form>
+	</div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="{% static 'main/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'main/js/dataTables.bootstrap4.min.js' %}"></script>
+<script src="{% static 'main/js/tables.js' %}"></script>
+{% endblock %}

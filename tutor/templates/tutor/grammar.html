@@ -1,0 +1,37 @@
+{% extends 'main/layout.html' %}{% load static %}
+{% block content %}
+<div class="row justify-content-center">
+	<div class="col-lg-8">
+		<div class="hero small mb-2">
+			{% include 'main/_mascot.html' with size='80' %}
+			<div>
+				<h1 class="h4 mb-1">{{ T.grammar_title }}</h1>
+				<p class="mb-0 note">{{ T.grammar_intro }}</p>
+			</div>
+		</div>
+		<form id="grammar-form">
+			<div class="form-group">
+				<label for="gtext" class="sr-only">{{ T.grammar_title }}</label>
+				<textarea id="gtext" class="form-control form-control-lg" rows="3" maxlength="600" placeholder="{{ T.grammar_placeholder }}" required></textarea>
+			</div>
+			<button id="gbtn" class="btn btn-primary btn-lg btn-block" type="submit">{{ T.grammar_check }}</button>
+		</form>
+		<p id="gmsg" class="msg mt-2" role="alert"></p>
+
+		<div id="gresult" class="card mt-3" hidden>
+			<div class="card-body">
+				<p id="g-ok" class="text-success font-weight-bold mb-2" hidden></p>
+				<p class="mb-1 note">{{ T.grammar_better }}:</p>
+				<p id="g-corrected" class="lead"></p>
+				<p id="g-explanation"></p>
+				<div id="g-errors-box" hidden>
+					<h2 class="h6 legend">{{ T.grammar_errors }}</h2>
+					<div id="g-errors"></div>
+				</div>
+				<p id="g-points" class="note mb-0"></p>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}
+{% block scripts %}<script type="module" src="{% static 'main/js/grammar.js' %}"></script>{% endblock %}

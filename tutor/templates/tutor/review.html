@@ -1,0 +1,15 @@
+{% extends 'main/layout.html' %}{% load static %}
+{% block content %}
+<div class="row justify-content-center">
+	<div class="col-lg-8">
+		<div class="hero small mb-2">
+			{% include 'main/_mascot.html' with size='70' %}
+			<h1 class="h4 mb-0">{{ T.review_title }}</h1>
+		</div>
+		<p id="note" class="note" aria-live="polite"></p>
+		<div id="list"></div>
+		<p><a href="/">{{ T.back }}</a></p>
+	</div>
+</div>
+{% endblock %}
+{% block scripts %}<script type="module" src="{% static 'main/js/review.js' %}"></script>{% endblock %}

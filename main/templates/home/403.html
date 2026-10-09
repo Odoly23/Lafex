@@ -1,0 +1,10 @@
+{% extends 'main/layout.html' %}
+{% block title %}403 - Lafex{% endblock %}
+{% block content %}
+<section>
+  {% include 'main/_mascot.html' %}
+  <h1>403</h1>
+  <p>{{ T.err_forbidden }}</p>
+  <p><a href="/">{{ T.back }}</a></p>
+</section>
+{% endblock %}

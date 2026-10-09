@@ -9,72 +9,72 @@ from .models import Entitlement, Plan, UsageDay, Voucher
 
 
 class VoucherError(Exception):
-    def __init__(self, code):
-        super().__init__(code)
-        self.code = code
+	def __init__(self, code):
+		super().__init__(code)
+		self.code = code
 
 
 def expires_at(user):
-    ent = Entitlement.objects.filter(user=user).first()
-    return ent.expires_at if ent else None
+	ent = Entitlement.objects.filter(user=user).first()
+	return ent.expires_at if ent else None
 
 
 def is_active(user):
-    exp = expires_at(user)
-    return bool(exp and exp > timezone.now())
+	exp = expires_at(user)
+	return bool(exp and exp > timezone.now())
 
 
 @transaction.atomic
 def redeem(user, raw_code):
-    """Voucher sekali pakai. Jika paket masih aktif, waktunya ditambahkan di belakangnya."""
-    code = (raw_code or '').strip().upper()
-    v = Voucher.objects.select_for_update().select_related('plan').filter(code=code).first()
-    if not v:
-        raise VoucherError('voucher_unknown')
-    if v.used_by_id:
-        raise VoucherError('voucher_used')
-    ent = Entitlement.objects.select_for_update().filter(user=user).first()
-    now = timezone.now()
-    base = max(now, ent.expires_at) if ent else now
-    new_exp = base + timedelta(hours=v.plan.hours)
-    if ent:
-        ent.expires_at = new_exp
-        ent.save(update_fields=['expires_at'])
-    else:
-        Entitlement.objects.create(user=user, expires_at=new_exp)
-    v.used_by, v.used_at = user, now
-    v.save(update_fields=['used_by', 'used_at'])
-    return new_exp
+	"""Voucher sekali pakai. Jika paket masih aktif, waktunya ditambahkan di belakangnya."""
+	code = (raw_code or '').strip().upper()
+	v = Voucher.objects.select_for_update().select_related('plan').filter(code=code).first()
+	if not v:
+		raise VoucherError('voucher_unknown')
+	if v.used_by_id:
+		raise VoucherError('voucher_used')
+	ent = Entitlement.objects.select_for_update().filter(user=user).first()
+	now = timezone.now()
+	base = max(now, ent.expires_at) if ent else now
+	new_exp = base + timedelta(hours=v.plan.hours)
+	if ent:
+		ent.expires_at = new_exp
+		ent.save(update_fields=['expires_at'])
+	else:
+		Entitlement.objects.create(user=user, expires_at=new_exp)
+	v.used_by, v.used_at = user, now
+	v.save(update_fields=['used_by', 'used_at'])
+	return new_exp
 
 
 def daily_limit(user):
-    return settings.PAID_TURNS_PER_DAY if is_active(user) else settings.FREE_TURNS_PER_DAY
+	return settings.PAID_TURNS_PER_DAY if is_active(user) else settings.FREE_TURNS_PER_DAY
 
 
 def turns_left(user):
-    used = UsageDay.objects.filter(user=user, day=timezone.localdate()).values_list('turns', flat=True).first() or 0
-    return max(0, daily_limit(user) - used)
+	used = UsageDay.objects.filter(user=user, day=timezone.localdate()).values_list('turns', flat=True).first() or 0
+	return max(0, daily_limit(user) - used)
 
 
 def consume_turn(user):
-    """Ambil satu jatah secara atomik. False bila habis."""
-    day, limit = timezone.localdate(), daily_limit(user)
-    try:
-        UsageDay.objects.get_or_create(user=user, day=day)
-    except IntegrityError:  # balapan dua permintaan: baris sudah dibuat yang lain
-        pass
-    return UsageDay.objects.filter(user=user, day=day, turns__lt=limit).update(turns=F('turns') + 1) == 1
+	"""Ambil satu jatah secara atomik. False bila habis."""
+	day, limit = timezone.localdate(), daily_limit(user)
+	try:
+		UsageDay.objects.get_or_create(user=user, day=day)
+	except IntegrityError:  # balapan dua permintaan: baris sudah dibuat yang lain
+		pass
+	return UsageDay.objects.filter(user=user, day=day, turns__lt=limit).update(turns=F('turns') + 1) == 1
 
 
 def refund_turn(user):
-    UsageDay.objects.filter(user=user, day=timezone.localdate(), turns__gt=0).update(turns=F('turns') - 1)
+	UsageDay.objects.filter(user=user, day=timezone.localdate(), turns__gt=0).update(turns=F('turns') - 1)
 
 
 def create_vouchers(plan_code, count):
-    import secrets
-    plan = Plan.objects.get(code=plan_code)
-    out = []
-    for _ in range(count):
-        code = '-'.join(secrets.token_hex(2).upper() for _ in range(3))
-        out.append(Voucher.objects.create(code=code, plan=plan).code)
-    return out
+	import secrets
+	plan = Plan.objects.get(code=plan_code)
+	out = []
+	for _ in range(count):
+		code = '-'.join(secrets.token_hex(2).upper() for _ in range(3))
+		out.append(Voucher.objects.create(code=code, plan=plan).code)
+	return out

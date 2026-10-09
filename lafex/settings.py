@@ -6,17 +6,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 def env(name, default=None):
-    return os.environ.get(name, default)
+	return os.environ.get(name, default)
 
 
 def env_bool(name, default=False):
-    return str(env(name, str(default))).lower() in ('1', 'true', 'yes', 'on')
+	return str(env(name, str(default))).lower() in ('1', 'true', 'yes', 'on')
 
 
 DEBUG = env_bool('DEBUG', False)
 SECRET_KEY = env('SECRET_KEY', 'dev-only-insecure-key' if DEBUG else None)
 if not SECRET_KEY:
-    raise RuntimeError('SECRET_KEY wajib diatur saat DEBUG mati.')
+	raise RuntimeError('SECRET_KEY wajib diatur saat DEBUG mati.')
 ALLOWED_HOSTS = [h for h in env('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',') if h]
 CSRF_TRUSTED_ORIGINS = [o for o in env('CSRF_TRUSTED_ORIGINS', '').split(',') if o]
 
@@ -27,11 +27,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'accounts',
+    'config',
+    'users',
     'billing',
     'curriculum',
     'tutor',
-    'frontend',
+    'main',
 ]
 
 MIDDLEWARE = [
@@ -56,13 +57,13 @@ TEMPLATES = [{
         'django.template.context_processors.request',
         'django.contrib.auth.context_processors.auth',
         'django.contrib.messages.context_processors.messages',
-        'frontend.context_processors.strings',
+        'main.context_processors.strings',
     ]},
 }]
 
 # Database: MySQL untuk produksi (DB_ENGINE=mysql); SQLite untuk pengembangan cepat.
 if env('DB_ENGINE', 'sqlite') == 'mysql':
-    DATABASES = {'default': {
+	DATABASES = {'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': env('DB_NAME', 'lafex'),
         'USER': env('DB_USER', 'lafex'),
@@ -75,9 +76,9 @@ if env('DB_ENGINE', 'sqlite') == 'mysql':
         'TEST': {'CHARSET': 'utf8mb4', 'COLLATION': 'utf8mb4_unicode_ci'},
     }}
 else:
-    DATABASES = {'default': {'ENGINE': 'django.db.backends.sqlite3', 'NAME': BASE_DIR / 'db.sqlite3'}}
+	DATABASES = {'default': {'ENGINE': 'django.db.backends.sqlite3', 'NAME': BASE_DIR / 'db.sqlite3'}}
 
-AUTH_USER_MODEL = 'accounts.User'
+AUTH_USER_MODEL = 'users.User'
 LOGIN_URL = '/login/'
 LANGUAGE_CODE = 'en'
 TIME_ZONE = 'Asia/Dili'
@@ -98,22 +99,22 @@ SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = 'Lax'
 CSRF_COOKIE_SAMESITE = 'Lax'
 if not DEBUG:
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
-    SECURE_SSL_REDIRECT = env_bool('SECURE_SSL_REDIRECT', True)
-    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-    SECURE_HSTS_SECONDS = 60 * 60 * 24 * 30
+	SESSION_COOKIE_SECURE = True
+	CSRF_COOKIE_SECURE = True
+	SECURE_SSL_REDIRECT = env_bool('SECURE_SSL_REDIRECT', True)
+	SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+	SECURE_HSTS_SECONDS = 60 * 60 * 24 * 30
 
 # Email kode masuk: konsol saat pengembangan, SMTP di produksi.
 if env('EMAIL_HOST'):
-    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-    EMAIL_HOST = env('EMAIL_HOST')
-    EMAIL_PORT = int(env('EMAIL_PORT', '587'))
-    EMAIL_HOST_USER = env('EMAIL_HOST_USER', '')
-    EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', '')
-    EMAIL_USE_TLS = env_bool('EMAIL_USE_TLS', True)
+	EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+	EMAIL_HOST = env('EMAIL_HOST')
+	EMAIL_PORT = int(env('EMAIL_PORT', '587'))
+	EMAIL_HOST_USER = env('EMAIL_HOST_USER', '')
+	EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', '')
+	EMAIL_USE_TLS = env_bool('EMAIL_USE_TLS', True)
 else:
-    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+	EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', 'Lafex <no-reply@lafex.local>')
 
 # ---- Lafex ----

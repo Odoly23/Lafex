@@ -1,10 +1,8 @@
 from django.urls import path
 
-from . import views
+from .views import pages
 
 urlpatterns = [
-    path('sessions/', views.start),
-    path('sessions/<int:session_id>/turn/', views.turn),
-    path('sessions/<int:session_id>/finish/', views.finish),
-    path('review/', views.review),
+    path('mission/<slug:slug>/', pages.MissionPage, name='mission'),
+    path('review/', pages.ReviewPage, name='review'),
 ]

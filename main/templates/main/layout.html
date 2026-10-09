@@ -1,0 +1,24 @@
+{% load static %}<!doctype html>
+<html lang="tet">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}Lafex{% endblock %}</title>
+<meta name="theme-color" content="#0b6b3a">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="{% static 'main/images/icon-192.png' %}">
+<link rel="apple-touch-icon" href="{% static 'main/images/apple-touch-icon.png' %}">
+<link rel="stylesheet" href="{% static 'main/css/app.css' %}">
+</head>
+<body>
+<header>
+  <a class="brand" href="/">Lafex</a>
+  {% if user.is_authenticated %}{% include 'main/navbar.html' %}{% endif %}
+  <div id="status" aria-live="polite"></div>
+</header>
+<main>{% block content %}{% endblock %}</main>
+{{ T|json_script:"t-data" }}
+<script type="module" src="{% static 'main/js/common.js' %}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

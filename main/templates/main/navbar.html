@@ -1,0 +1,5 @@
+<nav aria-label="Menu">
+  <a href="/" {% if page == 'home' %}aria-current="page" class="active"{% endif %}>{{ T.nav_home }}</a>
+  <a href="/review/" {% if page == 'review' %}aria-current="page" class="active"{% endif %}>{{ T.nav_review }}</a>
+  {% if group == 'staff' or group == 'admin' %}<a href="/admin/">{{ T.nav_admin }}</a>{% endif %}
+</nav>

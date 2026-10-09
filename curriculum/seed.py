@@ -93,14 +93,14 @@ MISSIONS = [
 
 
 def run():
-    from .models import Mission, Scenario
+	from .models import Mission, Scenario
 
-    scenarios = {}
-    for s in SCENARIOS:
-        obj, _ = Scenario.objects.update_or_create(slug=s['slug'], defaults={k: v for k, v in s.items() if k != 'slug'})
-        scenarios[s['slug']] = obj
-    for m in MISSIONS:
-        data = {k: v for k, v in m.items() if k not in ('slug', 'scenario')}
-        data['scenario'] = scenarios.get(m['scenario'])
-        Mission.objects.update_or_create(slug=m['slug'], defaults=data)
-    return len(SCENARIOS), len(MISSIONS)
+	scenarios = {}
+	for s in SCENARIOS:
+		obj, _ = Scenario.objects.update_or_create(slug=s['slug'], defaults={k: v for k, v in s.items() if k != 'slug'})
+		scenarios[s['slug']] = obj
+	for m in MISSIONS:
+		data = {k: v for k, v in m.items() if k not in ('slug', 'scenario')}
+		data['scenario'] = scenarios.get(m['scenario'])
+		Mission.objects.update_or_create(slug=m['slug'], defaults=data)
+	return len(SCENARIOS), len(MISSIONS)

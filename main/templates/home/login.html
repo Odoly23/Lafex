@@ -1,0 +1,25 @@
+{% extends 'main/layout.html' %}{% load static %}
+{% block title %}{{ T.login_title }} - Lafex{% endblock %}
+{% block content %}
+<section id="login">
+  {% include 'main/_mascot.html' %}
+  <h1>{{ T.login_title }}</h1>
+  <p>{{ T.login_sub }}</p>
+
+  <form id="form-email">
+    <label for="email">{{ T.email_label }}</label>
+    <input id="email" type="email" inputmode="email" autocomplete="email" required>
+    <button class="primary" type="submit">{{ T.send_code }}</button>
+  </form>
+
+  <form id="form-code" hidden>
+    <p id="code-sent" class="note"></p>
+    <label for="code">{{ T.code_label }}</label>
+    <input id="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" required>
+    <button class="primary" type="submit">{{ T.enter }}</button>
+    <button id="btn-resend" type="button">{{ T.resend }}</button>
+  </form>
+  <p id="msg" class="msg" role="alert"></p>
+</section>
+{% endblock %}
+{% block scripts %}<script type="module" src="{% static 'main/js/login.js' %}"></script>{% endblock %}

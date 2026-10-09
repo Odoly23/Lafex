@@ -42,13 +42,20 @@ Produksi: `DEBUG=0`, `SECRET_KEY` acak, `python manage.py collectstatic`, jalank
 
 ## Struktur
 
-| App | Isi |
-|---|---|
-| `accounts` | User berbasis email, kode login sekali pakai (di-hash, kedaluwarsa 10 menit, maks 5 tebakan, maks 5 permintaan/jam) |
-| `billing` | Paket, voucher sekali pakai, masa aktif (voucher menumpuk), jatah giliran harian |
-| `curriculum` | Skenario -> Misi (peran AI, tujuan, rubrik). Data awal di `curriculum/seed.py` |
-| `tutor` | Sesi & giliran, mesin Claude (`ai.py`), penilaian akhir, review API |
-| `frontend` | Halaman, teks Tetun (`strings.py`), JS, service worker, manifest |
+Mengikuti gaya proyek Django Anda: satu app per domain, templat di `<app>/templates/<app>/`, view berbentuk fungsi, indentasi tab, peran lewat Django Groups.
+
+```
+lafex/           settings, urls (handler 403/404/500)
+config/          decorators.py (allowed_users, api_allowed_users), user_utils.py, utils.py
+users/           User berbasis email, kode login, auth_utils.py
+billing/         paket, voucher, masa aktif, jatah harian
+curriculum/      Skenario -> Misi (data awal: seed.py)
+tutor/           sesi & giliran, ai.py (Claude), views/ (api.py, pages.py), templates/tutor/
+main/            layout.html, navbar.html, templates/home/ (login, home, 403/404/500),
+                 static/main/ (css, js, images), service worker, manifest, strings.py (teks Tetun)
+```
+
+Peran (Groups): `student` (otomatis untuk pengguna baru), `staff` (pengelola materi), `admin`. Halaman memakai `@login_required` + `@allowed_users(...)`; API JSON memakai `@api_allowed_users(...)` (401/403, bukan redirect). Superuser selalu lolos.
 
 Menambah skenario baru = menambah data di `curriculum/seed.py` (tanpa mengubah kode).
 

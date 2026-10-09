@@ -1,0 +1,50 @@
+{% extends 'main/layout.html' %}{% load static %}
+{% block content %}
+<section id="mission" data-slug="{{ mission.slug }}">
+  <!-- Pembuka: klik "Hahú" diperlukan karena browser hanya mengizinkan suara setelah interaksi pengguna -->
+  <div id="intro">
+    {% include 'main/_mascot.html' with size='180' %}
+    <h1>{{ mission.title_tet }}</h1>
+    <p><strong>{{ T.goal }}:</strong> <span>{{ mission.goal_tet }}</span></p>
+    <button id="btn-start" class="primary big" type="button">{{ T.start_mission }}</button>
+    <p><a href="/">{{ T.back }}</a></p>
+  </div>
+
+  <div id="talk" hidden>
+    <div class="hero small">
+      {% include 'main/_mascot.html' with size='72' %}
+      <p class="goal"><strong>{{ T.goal }}:</strong> <span>{{ mission.goal_tet }}</span></p>
+    </div>
+    <div id="chat" aria-live="polite"></div>
+    <button id="btn-finish" class="primary" type="button" hidden>{{ T.finish }}</button>
+    <button id="btn-mic" class="mic" type="button" aria-label="{{ T.tap }}">
+      <svg viewBox="0 0 24 24" width="56" height="56" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4"/></svg>
+    </button>
+    <div id="mic-hint" aria-live="assertive"></div>
+    <div class="row">
+      <button id="btn-repeat" type="button">{{ T.repeat }}</button>
+      <label class="toggle"><input type="checkbox" id="chk-hands" checked> <span>{{ T.handsfree }}</span></label>
+      <label class="toggle"><input type="checkbox" id="chk-slow"> <span>{{ T.slow }}</span></label>
+    </div>
+    <form id="text-form" class="row">
+      <input id="text-input" autocomplete="off" aria-label="{{ T.send }}">
+      <button type="submit">{{ T.send }}</button>
+    </form>
+    <p id="voice-warn" class="msg"></p>
+  </div>
+
+  <div id="result" hidden>
+    {% include 'main/_mascot.html' with size='120' %}
+    <h1>{{ T.result_title }}</h1>
+    <p class="score"><span id="r-score"></span><small>/100</small></p>
+    <p id="r-headline"></p>
+    <p>{{ T.new_level }}: <strong id="r-level"></strong></p>
+    <h2>{{ T.tips }}</h2><ul id="r-tips"></ul>
+    <h2>{{ T.corrections }}</h2><div id="r-corr"></div>
+    <h2>{{ T.vocab }}</h2><ul id="r-vocab"></ul>
+    <a class="primary big" href="/">{{ T.to_home }}</a>
+  </div>
+  <p id="msg" class="msg" role="alert"></p>
+</section>
+{% endblock %}
+{% block scripts %}<script type="module" src="{% static 'main/js/mission.js' %}"></script>{% endblock %}

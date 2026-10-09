@@ -13,11 +13,12 @@ from config.user_utils import user_group
 
 # Berkas yang dicache PWA agar aplikasi terbuka cepat dan review bisa offline.
 SHELL_STATIC = [
-    'main/css/app.css',
-    'main/js/common.js', 'main/js/login.js', 'main/js/home.js',
-    'main/js/mission.js', 'main/js/review.js',
-    'main/images/lafaek.png', 'main/images/icon-192.png', 'main/images/icon-512.png',
-    'main/images/apple-touch-icon.png',
+    'main/css/bootstrap.min.css', 'main/css/app.css', 'main/font-awesome/css/font-awesome.min.css',
+    'main/font-awesome/fonts/fontawesome-webfont.woff2',
+    'main/js/jquery.min.js', 'main/js/bootstrap.bundle.min.js', 'main/js/layout.js',
+    'main/js/common.js', 'main/js/login.js', 'main/js/home.js', 'main/js/mission.js', 'main/js/review.js',
+    'main/images/lafaek.png', 'main/images/lafaek-head.png',
+    'main/images/icon-192.png', 'main/images/icon-512.png', 'main/images/apple-touch-icon.png',
 ]
 
 

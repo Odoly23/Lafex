@@ -80,11 +80,11 @@ def verify_code(email, code):
 	created = user is None
 	if created:
 		try:
-			user = User.objects.create_user(email)  # create_user memberi peran 'student'
+			user = User.objects.create_user(email)  # create_user memberi peran 'estudante'
 		except IntegrityError:  # dua permintaan bersamaan untuk email baru yang sama
 			user, created = User.objects.get(email=email), False
 	if not user.groups.exists():
-		user.groups.add(Group.objects.get_or_create(name='student')[0])  # pulihkan pengguna tanpa peran
+		user.groups.add(Group.objects.get_or_create(name='estudante')[0])  # pulihkan pengguna tanpa peran
 	if not user.is_active:
 		return None
 	return user, created

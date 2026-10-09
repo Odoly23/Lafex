@@ -1,4 +1,4 @@
-import { $, T, api, fmt, logout, errText } from './common.js';
+import { $, T, api, fmt, errText } from './common.js';
 
 const BANDS = ['beginner', 'intermediate', 'advanced'];
 
@@ -6,8 +6,6 @@ function renderAccess(me) {
   $('access-line').textContent = me.active
     ? fmt(T.access_active, { date: new Date(me.expires_at).toLocaleDateString() })
     : fmt(T.access_free, { n: me.turns_left });
-  $('level').textContent = me.level;
-  $('status').textContent = me.email;
 }
 
 function renderScenarios(data, me) {
@@ -18,11 +16,12 @@ function renderScenarios(data, me) {
     box.className = 'scenario';
     const h = document.createElement('h3');
     h.textContent = `${sc.emoji} ${sc.title_tet}`;
+    h.className = 'h5';
     box.append(h);
     for (const band of BANDS) {
       for (const m of sc.missions.filter((x) => x.band === band)) {
         const a = document.createElement('a');
-        a.className = 'mission' + (band === me.band ? ' rec' : '');
+        a.className = 'mission-item' + (band === me.band ? ' rec' : '');
         a.href = `/mission/${m.slug}/`;
         a.textContent = m.title_tet;
         const tag = document.createElement('span');
@@ -37,6 +36,16 @@ function renderScenarios(data, me) {
   }
 }
 
+// Dipasang sejak awal (bukan setelah data termuat) agar klik cepat tidak hilang.
+$('btn-redeem').onclick = async () => {
+  $('redeem-msg').textContent = '';
+  try {
+    renderAccess(await api('/redeem/', { code: $('voucher').value }));
+    $('voucher').value = '';
+    $('redeem-msg').textContent = T.redeemed;
+  } catch (err) { $('redeem-msg').textContent = errText(err); }
+};
+
 (async () => {
   try {
     const [me, cur] = await Promise.all([api('/me/'), api('/curriculum/')]);
@@ -48,16 +57,7 @@ function renderScenarios(data, me) {
       li.textContent = `${p.label}: $${p.price_usd}`;
       return li;
     }));
-    $('btn-redeem').onclick = async () => {
-      $('redeem-msg').textContent = '';
-      try {
-        renderAccess(await api('/redeem/', { code: $('voucher').value }));
-        $('voucher').value = '';
-        $('redeem-msg').textContent = T.redeemed;
-      } catch (err) { $('redeem-msg').textContent = errText(err); }
-    };
   } catch (err) {
     if (err.status === 401) location.href = '/login/';
   }
 })();
-$('btn-logout').onclick = logout;

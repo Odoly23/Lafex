@@ -67,14 +67,43 @@ class PageTests(TestCase):
 			self.assertEqual(struct.unpack('>II', head[16:24]), (size, size), name)
 
 
+class OfflineAssetsTests(TestCase):
+	"""Aplikasi harus jalan offline: tidak boleh ada library/font dari CDN."""
+
+	def test_no_external_resources(self):
+		import re
+		root = Path(__file__).resolve().parent.parent
+		bad = []
+		files = list(root.glob('*/templates/**/*.html')) + list(root.glob('*/static/*/js/*.js')) + [root / 'main/static/main/css/app.css']
+		for f in files:
+			for m in re.finditer(r'(?:src|href)\s*=\s*["\']\s*(https?:)?//|url\(\s*["\']?(https?:)?//|\bimport\s*[^;]*from\s*["\']https?:', f.read_text()):
+				bad.append(f'{f.name}: {m.group(0)}')
+		self.assertEqual(bad, [])
+
+	def test_vendor_libraries_present(self):
+		for p in ('main/css/bootstrap.min.css', 'main/js/jquery.min.js', 'main/js/bootstrap.bundle.min.js',
+                  'main/js/jquery.dataTables.min.js', 'main/js/dataTables.bootstrap4.min.js', 'main/chart/chart.umd.js',
+                  'main/font-awesome/css/font-awesome.min.css', 'main/font-awesome/fonts/fontawesome-webfont.woff2'):
+			self.assertTrue(finders.find(p), p)
+
+	def test_layout_loads_local_scripts_only(self):
+		self.client.force_login(User.objects.create_user('a@x.com'))
+		html = self.client.get('/').content.decode()
+		self.assertIn('/static/main/js/jquery.min.js', html)
+		self.assertIn('/static/main/js/bootstrap.bundle.min.js', html)
+		self.assertIn('/static/main/css/bootstrap.min.css', html)
+
+
 class StringsTests(TestCase):
 	"""Mencegah salah ketik kunci teks: setiap T.xxx di templat dan JS harus ada di strings.py."""
 
 	def test_all_referenced_keys_exist(self):
 		root = Path(__file__).parent
 		missing = set()
-		templates = list((root / 'templates').rglob('*.html')) + list((root.parent / 'tutor/templates').rglob('*.html'))
-		for f in templates + list((root / 'static/main/js').glob('*.js')):
+		templates = [f for app in root.parent.iterdir() for f in (app / 'templates').rglob('*.html')]
+		templates += list((root.parent / 'report/static/report/js').glob('*.js'))
+		own_js = [f for f in (root / 'static/main/js').glob('*.js') if '.min.' not in f.name]
+		for f in templates + own_js:
 			text = f.read_text()
 			keys = set(re.findall(r'\{\{\s*T\.(\w+)', text)) if f.suffix == '.html' else set(re.findall(r'\bT\.(\w+)', text))
 			if f.name == 'sw.js':

@@ -1,0 +1,49 @@
+{% extends 'main/layout.html' %}{% load static %}
+{% block head %}<link rel="stylesheet" href="{% static 'main/css/dataTables.bootstrap4.min.css' %}">{% endblock %}
+{% block content %}
+<h1 class="h4 legend">{{ legend }}</h1>
+
+<div class="card mb-3">
+	<div class="card-header">Kria vaucher foun</div>
+	<div class="card-body">
+		<form method="post" class="form-inline">
+			{% csrf_token %}
+			<label class="mr-2" for="plan">Pakote</label>
+			<select name="plan" id="plan" class="form-control mr-3 mb-2 mb-sm-0">
+				{% for p in plans %}<option value="{{ p.code }}">{{ p.label }} - ${{ p.price_usd }}</option>{% endfor %}
+			</select>
+			<label class="mr-2" for="count">Kuantidade</label>
+			<input type="number" name="count" id="count" class="form-control mr-3 mb-2 mb-sm-0" min="1" max="200" value="1" required style="width:100px">
+			<button class="btn btn-primary" type="submit"><i class="fa fa-plus"></i> Kria</button>
+		</form>
+		{% if new_codes %}
+			<hr>
+			<p class="mb-1"><strong>Kódigu foun</strong> (hatudu dala ida de'it; kopia no rai):</p>
+			<pre class="border rounded p-2 bg-light mb-0">{% for c in new_codes %}{{ c }}
+{% endfor %}</pre>
+		{% endif %}
+	</div>
+</div>
+
+<div class="card"><div class="card-body table-responsive">
+	<table class="table table-striped table-bordered js-table" style="width:100%">
+		<thead><tr><th>Kódigu</th><th>Pakote</th><th>Data kria</th><th>Uza husi</th><th>Data uza</th></tr></thead>
+		<tbody>
+		{% for v in objects %}
+			<tr>
+				<td><code>{{ v.code }}</code></td>
+				<td>{{ v.plan.label }}</td>
+				<td data-order="{{ v.created_at|date:'U' }}">{{ v.created_at|date:"d/m/Y H:i" }}</td>
+				<td>{{ v.used_by.email|default:"-" }}</td>
+				<td>{{ v.used_at|date:"d/m/Y H:i"|default:"-" }}</td>
+			</tr>
+		{% endfor %}
+		</tbody>
+	</table>
+</div></div>
+{% endblock %}
+{% block scripts %}
+<script src="{% static 'main/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'main/js/dataTables.bootstrap4.min.js' %}"></script>
+<script src="{% static 'main/js/tables.js' %}"></script>
+{% endblock %}

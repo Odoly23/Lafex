@@ -1,5 +1,41 @@
-<nav aria-label="Menu">
-  <a href="/" {% if page == 'home' %}aria-current="page" class="active"{% endif %}>{{ T.nav_home }}</a>
-  <a href="/review/" {% if page == 'review' %}aria-current="page" class="active"{% endif %}>{{ T.nav_review }}</a>
-  {% if group == 'staff' or group == 'admin' %}<a href="/admin/">{{ T.nav_admin }}</a>{% endif %}
+{% load static %}
+<div class="topbar">
+	<div class="container">
+		<div class="tb-left"><span>Lafaek Exploration</span><span>{{ T.tagline }}</span></div>
+		<div class="tb-right" id="status" aria-live="polite"></div>
+	</div>
+</div>
+
+<nav class="main-navbar" aria-label="Menu">
+	<div class="container">
+		<a class="brand" href="/">
+			<img src="{% static 'main/images/lafaek-head.png' %}" alt="">
+			<span>Lafex</span>
+		</a>
+
+		{% if user.is_authenticated %}
+		<ul class="nav-links">
+			{% if group == 'staff' or group == 'admin' %}
+				<li><a href="{% url 'dashboard' %}" {% if page == 'dashboard' %}class="on" aria-current="page"{% endif %}><i class="fa fa-dashboard"></i> {{ T.nav_dashboard }}</a></li>
+				<li><a href="{% url 'student_list' %}" {% if page == 'siswa' %}class="on" aria-current="page"{% endif %}><i class="fa fa-users"></i> {{ T.nav_students }}</a></li>
+				<li><a href="{% url 'mission_list' %}" {% if page == 'misaun' %}class="on" aria-current="page"{% endif %}><i class="fa fa-list"></i> {{ T.nav_missions }}</a></li>
+				{% if group == 'admin' %}<li><a href="{% url 'voucher_list' %}" {% if page == 'vaucher' %}class="on" aria-current="page"{% endif %}><i class="fa fa-ticket"></i> {{ T.nav_vouchers }}</a></li>{% endif %}
+			{% endif %}
+			<li><a href="/" {% if page == 'home' %}class="on" aria-current="page"{% endif %}><i class="fa fa-home"></i> {{ T.nav_home }}</a></li>
+			<li><a href="/review/" {% if page == 'review' %}class="on" aria-current="page"{% endif %}><i class="fa fa-book"></i> {{ T.nav_review }}</a></li>
+			<li class="dropdown">
+				<a href="#" class="dropdown-toggle" id="userMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="{{ T.nav_account }}">
+					<span class="av"><i class="fa fa-user"></i></span>
+				</a>
+				<div class="dropdown-menu dropdown-menu-right" aria-labelledby="userMenu">
+					<span class="dropdown-item-text small text-muted" id="nav-email"></span>
+					{% if user.is_staff %}<a class="dropdown-item" href="/admin/"><i class="fa fa-cog"></i> {{ T.nav_admin }}</a>{% endif %}
+					<div class="dropdown-divider"></div>
+					<button type="button" class="dropdown-item text-danger" data-logout><i class="fa fa-sign-out"></i> {{ T.logout }}</button>
+				</div>
+			</li>
+		</ul>
+		<button class="btn-ham" id="btn-ham" type="button" aria-label="{{ T.nav_menu }}" aria-controls="sidebar" aria-expanded="false"><i class="fa fa-bars"></i></button>
+		{% endif %}
+	</div>
 </nav>

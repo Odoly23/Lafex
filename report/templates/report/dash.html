@@ -1,0 +1,22 @@
+{% extends 'main/layout.html' %}{% load static %}
+{% block content %}
+<h1 class="h4 legend">{{ legend }}</h1>
+
+<div class="row">
+	<div class="col-6 col-md-3 mb-3"><div class="card stat"><div class="n" id="st-siswa">-</div><div class="t">Estudante</div></div></div>
+	<div class="col-6 col-md-3 mb-3"><div class="card stat"><div class="n" id="st-sesaun">-</div><div class="t">Sesaun remata</div></div></div>
+	<div class="col-6 col-md-3 mb-3"><div class="card stat"><div class="n" id="st-pakote_ativu">-</div><div class="t">Pakote ativu</div></div></div>
+	<div class="col-6 col-md-3 mb-3"><div class="card stat"><div class="n" id="st-vaucher_livre">-</div><div class="t">Vaucher livre</div></div></div>
+</div>
+
+<div class="row">
+	<div class="col-lg-8 mb-3"><div class="card"><div class="card-header">Sesaun remata (loron 14 ikus)</div><div class="card-body"><div class="chart-box"><canvas id="ch-daily" role="img" aria-label="Sesaun remata kada loron"></canvas></div></div></div></div>
+	<div class="col-lg-4 mb-3"><div class="card"><div class="card-header">Estudante tuir nível</div><div class="card-body"><div class="chart-box"><canvas id="ch-levels" role="img" aria-label="Estudante tuir nível"></canvas></div></div></div></div>
+	<div class="col-lg-8 mb-3"><div class="card"><div class="card-header">Pontu média kada misaun (jumlah sesaun iha parentese)</div><div class="card-body"><div class="chart-box"><canvas id="ch-missions" role="img" aria-label="Sesaun no pontu média kada misaun"></canvas></div></div></div></div>
+	<div class="col-lg-4 mb-3"><div class="card"><div class="card-header">Vaucher</div><div class="card-body"><div class="chart-box"><canvas id="ch-vouchers" role="img" aria-label="Vaucher uza no seidauk uza"></canvas></div></div></div></div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="{% static 'main/chart/chart.umd.js' %}"></script>
+<script type="module" src="{% static 'report/js/dash.js' %}"></script>
+{% endblock %}

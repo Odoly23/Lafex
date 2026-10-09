@@ -27,11 +27,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
     'config',
     'users',
     'billing',
     'curriculum',
     'tutor',
+    'report',
     'main',
 ]
 
@@ -116,6 +118,14 @@ if env('EMAIL_HOST'):
 else:
 	EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', 'Lafex <no-reply@lafex.local>')
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': ['config.auth.SessionAuth401'],
+    'DEFAULT_PERMISSION_CLASSES': ['rest_framework.permissions.IsAuthenticated'],
+    'DEFAULT_RENDERER_CLASSES': ['rest_framework.renderers.JSONRenderer'],  # tanpa browsable API
+    'DEFAULT_PARSER_CLASSES': ['rest_framework.parsers.JSONParser'],
+    'EXCEPTION_HANDLER': 'config.api.exception_handler',
+}
 
 # ---- Lafex ----
 LOGIN_CODE_TTL_MINUTES = 10

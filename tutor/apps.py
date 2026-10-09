@@ -2,4 +2,6 @@ from django.apps import AppConfig
 
 
 class TutorConfig(AppConfig):
-	name = "tutor"
+	default_auto_field = 'django.db.models.BigAutoField'
+	name = 'tutor'
+	verbose_name = 'Tutór AI'

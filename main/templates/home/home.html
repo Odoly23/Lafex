@@ -1,31 +1,35 @@
 {% extends 'main/layout.html' %}{% load static %}
 {% block content %}
-<section id="home">
-  <div class="hero">
-    {% include 'main/_mascot.html' %}
-    <p class="bubble-hero">{{ T.greeting }}</p>
-  </div>
+<div class="row">
+	<div class="col-lg-8">
+		<div class="hero mb-3">
+			{% include 'main/_mascot.html' with size='110' %}
+			<p class="hero-bubble">{{ T.greeting }}</p>
+		</div>
 
-  <p id="access-line" class="card" aria-live="polite"></p>
-  <p>{{ T.level_label }}: <strong id="level"></strong></p>
+		<p id="access-line" class="alert alert-light border" aria-live="polite"></p>
 
-  <a id="placement-cta" class="primary big" href="/mission/placement/" hidden>{{ T.placement_cta }}</a>
+		<a id="placement-cta" class="btn btn-warning btn-lg btn-block mb-3" href="/mission/placement/" hidden>{{ T.placement_cta }}</a>
 
-  <h2>{{ T.scenarios_title }}</h2>
-  <div id="scenarios"></div>
+		<h2 class="h5 legend">{{ T.scenarios_title }}</h2>
+		<div id="scenarios"></div>
+	</div>
 
-  <p><a href="/review/">{{ T.review_link }}</a></p>
-
-  <details id="buy" class="card">
-    <summary>{{ T.buy_title }}</summary>
-    <ul id="plans"></ul>
-    <label for="voucher">{{ T.voucher_label }}</label>
-    <input id="voucher" autocapitalize="characters" placeholder="XXXX-XXXX-XXXX">
-    <button id="btn-redeem" type="button">{{ T.redeem }}</button>
-    <p id="redeem-msg" class="msg" role="alert"></p>
-  </details>
-
-  <p><button id="btn-logout" type="button">{{ T.logout }}</button></p>
-</section>
+	<div class="col-lg-4">
+		<div class="card mb-3">
+			<div class="card-header">{{ T.buy_title }}</div>
+			<div class="card-body">
+				<ul id="plans" class="pl-3"></ul>
+				<div class="form-group">
+					<label for="voucher">{{ T.voucher_label }}</label>
+					<input id="voucher" class="form-control" autocapitalize="characters" placeholder="XXXX-XXXX-XXXX">
+				</div>
+				<button id="btn-redeem" class="btn btn-primary btn-block" type="button">{{ T.redeem }}</button>
+				<p id="redeem-msg" class="msg mt-2" role="alert"></p>
+			</div>
+		</div>
+		<p><a href="/review/"><i class="fa fa-book"></i> {{ T.review_link }}</a></p>
+	</div>
+</div>
 {% endblock %}
 {% block scripts %}<script type="module" src="{% static 'main/js/home.js' %}"></script>{% endblock %}

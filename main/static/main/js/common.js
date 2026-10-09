@@ -32,6 +32,18 @@ export async function logout() {
   location.href = '/login/';
 }
 
+// Email dan nível diisi di sini (bukan di HTML server): halaman /review/ dicache untuk offline
+// dan tidak boleh memuat data pribadi. Offline: biarkan kosong.
+if ($('nav-email')) {
+  api('/me/').then((me) => {
+    $('nav-email').textContent = me.email;
+    $('status').textContent = me.group === 'estudante' ? `${T.level_label} ${me.level}` : (me.group || '');
+  }).catch(() => {});
+}
+
+// Tombol keluar di navbar dan sidebar.
+document.querySelectorAll('[data-logout]').forEach((el) => el.addEventListener('click', (e) => { e.preventDefault(); logout(); }));
+
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(() => {});
 }

@@ -1,6 +1,6 @@
 from django.db import migrations
 
-ROLES = ['admin', 'staff', 'student']
+ROLES = ['admin', 'staff', 'estudante']
 
 
 def create_roles(apps, schema_editor):

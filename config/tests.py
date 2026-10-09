@@ -11,8 +11,8 @@ class RoleTests(TestCase):
 		seed.run()
 
 	def test_roles_exist_and_are_assigned_on_creation(self):
-		self.assertEqual(set(Group.objects.values_list('name', flat=True)) >= {'admin', 'staff', 'student'}, True)
-		self.assertEqual(User.objects.create_user('a@x.com').groups.get().name, 'student')
+		self.assertEqual(set(Group.objects.values_list('name', flat=True)) >= {'admin', 'staff', 'estudante'}, True)
+		self.assertEqual(User.objects.create_user('a@x.com').groups.get().name, 'estudante')
 		self.assertEqual(User.objects.create_user('s@x.com', is_staff=True).groups.get().name, 'staff')
 		self.assertEqual(User.objects.create_superuser('r@x.com').groups.get().name, 'admin')
 
@@ -28,7 +28,7 @@ class RoleTests(TestCase):
 	def test_any_matching_group_counts_not_only_the_first(self):
 		u = User.objects.create_user('multi@x.com')
 		u.groups.clear()
-		u.groups.add(Group.objects.get_or_create(name='other')[0], Group.objects.get(name='student'))
+		u.groups.add(Group.objects.get_or_create(name='other')[0], Group.objects.get(name='estudante'))
 		self.client.force_login(u)
 		self.assertEqual(self.client.get('/').status_code, 200)
 

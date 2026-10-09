@@ -1,0 +1,18 @@
+<!-- Sidebar HP: ikon + label kecil, mendorong isi halaman (bukan menimpa) -->
+<aside id="sidebar" aria-label="Menu">
+	<div class="sb-body">
+		<ul>
+			{% if group == 'staff' or group == 'admin' %}
+				<li class="{% if page == 'dashboard' %}sb-on{% endif %}"><a href="{% url 'dashboard' %}"><i class="fa fa-dashboard"></i>{{ T.nav_dashboard }}</a></li>
+				<li class="{% if page == 'siswa' %}sb-on{% endif %}"><a href="{% url 'student_list' %}"><i class="fa fa-users"></i>{{ T.nav_students }}</a></li>
+				<li class="{% if page == 'misaun' %}sb-on{% endif %}"><a href="{% url 'mission_list' %}"><i class="fa fa-list"></i>{{ T.nav_missions }}</a></li>
+				{% if group == 'admin' %}<li class="{% if page == 'vaucher' %}sb-on{% endif %}"><a href="{% url 'voucher_list' %}"><i class="fa fa-ticket"></i>{{ T.nav_vouchers }}</a></li>{% endif %}
+				<hr>
+			{% endif %}
+			<li class="{% if page == 'home' %}sb-on{% endif %}"><a href="/"><i class="fa fa-home"></i>{{ T.nav_home }}</a></li>
+			<li class="{% if page == 'review' %}sb-on{% endif %}"><a href="/review/"><i class="fa fa-book"></i>{{ T.nav_review }}</a></li>
+			<hr>
+			<li><a href="#" data-logout><i class="fa fa-sign-out"></i>{{ T.logout }}</a></li>
+		</ul>
+	</div>
+</aside>

@@ -19,7 +19,7 @@ class UserManager(BaseUserManager):
 		else:
 			user.set_unusable_password()  # pengguna biasa masuk lewat kode email
 		user.save(using=self._db)
-		role = 'admin' if user.is_superuser else 'staff' if user.is_staff else 'student'
+		role = 'admin' if user.is_superuser else 'staff' if user.is_staff else 'estudante'
 		user.groups.add(Group.objects.get_or_create(name=role)[0])  # peran lewat Django Groups
 		return user
 
@@ -37,15 +37,20 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser, PermissionsMixin):
-	email = models.EmailField(unique=True)
-	name = models.CharField(max_length=80, blank=True)
-	level = models.CharField(max_length=2, default='A1', choices=[(l, l) for l in LEVELS])
-	placement_done = models.BooleanField(default=False)
-	is_active = models.BooleanField(default=True)
-	is_staff = models.BooleanField(default=False)
-	date_joined = models.DateTimeField(default=timezone.now)
+	email = models.EmailField(unique=True, verbose_name='Email')
+	name = models.CharField(max_length=80, blank=True, verbose_name='Naran')
+	level = models.CharField(max_length=2, default='A1', choices=[(l, l) for l in LEVELS], verbose_name='Nível')
+	placement_done = models.BooleanField(default=False, verbose_name='Teste nível kompletu')
+	is_active = models.BooleanField(default=True, verbose_name='Ativu')
+	is_staff = models.BooleanField(default=False, verbose_name='Bele tama admin')
+	date_joined = models.DateTimeField(default=timezone.now, verbose_name='Data tama')
 
 	objects = UserManager()
+
+	class Meta:
+		verbose_name = 'Utilizadór'
+		verbose_name_plural = 'Utilizadór'
+
 	USERNAME_FIELD = 'email'
 	REQUIRED_FIELDS = []
 

@@ -99,8 +99,8 @@ class LoginCodeTests(TestCase):
 		u = User.objects.create_user('p@x.com')
 		self.assertFalse(u.has_usable_password())
 
-	def test_new_user_gets_student_role(self):
+	def test_new_user_gets_estudante_role(self):
 		_, code = self.request_code()
 		post(self.client, "/api/auth/verify/", {"email": "maria@example.com", "code": code})
-		self.assertEqual(User.objects.get().groups.get().name, "student")
+		self.assertEqual(User.objects.get().groups.get().name, "estudante")
 		self.assertEqual(self.client.get("/api/me/").status_code, 200)

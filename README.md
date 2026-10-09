@@ -14,7 +14,8 @@ Stack: **Django 6 + MySQL/MariaDB**, PWA (service worker + IndexedDB), Claude un
 | Lafaek bicara & mendengar, mode tanpa tangan, koreksi dalam Tetun | Animasi mulut maskot (butuh gambar berlapis) |
 | Paket gabungan (voucher sekali pakai) + batas harian | Verifikasi nomor HP (hanya email) |
 | Review offline materi yang sudah dipelajari; terkunci saat paket habis | Audio rekaman untuk review |
-| PWA bisa dipasang di layar utama | Panel analitik |
+| PWA bisa dipasang di layar utama | Ekspor laporan (CSV/PDF) |
+| Painel staff (grafik), daftar estudante, daftar misaun, kelola vaucher | Edit misaun lewat halaman sendiri (sementara lewat Django admin) |
 
 ## Menjalankan
 
@@ -25,7 +26,8 @@ pip install -r requirements.txt            # mysqlclient butuh libmariadb-dev + 
 export SECRET_KEY=dev DEBUG=1              # SQLite untuk pengembangan cepat
 python manage.py migrate
 python manage.py seed_curriculum           # skenario & misi (aman diulang)
-python manage.py create_vouchers 7d 5      # 5 voucher 7 hari
+python manage.py create_vouchers 7d 5      # 5 voucher 7 hari (atau lewat /staff/vaucher/)
+python manage.py createsuperuser           # akun admin (otomatis masuk grup admin)
 python manage.py runserver                 # http://localhost:8000
 python manage.py test
 ```
@@ -42,20 +44,31 @@ Produksi: `DEBUG=0`, `SECRET_KEY` acak, `python manage.py collectstatic`, jalank
 
 ## Struktur
 
-Mengikuti gaya proyek Django Anda: satu app per domain, templat di `<app>/templates/<app>/`, view berbentuk fungsi, indentasi tab, peran lewat Django Groups.
+Mengikuti gaya proyek Django Anda: satu app per domain, templat di `<app>/templates/<app>/`, view berbentuk fungsi untuk halaman dan `APIView` (Django REST Framework) untuk API, indentasi tab, peran lewat Django Groups, `verbose_name` Tetun di semua model.
 
 ```
 lafex/           settings, urls (handler 403/404/500)
-config/          decorators.py (allowed_users, api_allowed_users), user_utils.py, utils.py
-users/           User berbasis email, kode login, auth_utils.py
-billing/         paket, voucher, masa aktif, jatah harian
-curriculum/      Skenario -> Misi (data awal: seed.py)
+config/          decorators.py (allowed_users), api.py (APIAll/APIStaff/APIAdmin), auth.py, user_utils.py, utils.py
+users/           User berbasis email, kode login, auth_utils.py, staff_views.py (daftar estudante)
+billing/         paket, voucher, masa aktif, jatah harian, staff_views.py (kelola vaucher)
+curriculum/      Skenario -> Misi (data awal: seed.py), staff_views.py
 tutor/           sesi & giliran, ai.py (Claude), views/ (api.py, pages.py), templates/tutor/
-main/            layout.html, navbar.html, templates/home/ (login, home, 403/404/500),
-                 static/main/ (css, js, images), service worker, manifest, strings.py (teks Tetun)
+report/          API grafik {label, obj}, Painel staff (Chart.js)
+main/            layout/navbar/sidebar, templates/home/, static/main/ (css, js, images, library lokal),
+                 service worker, manifest, strings.py (teks Tetun)
 ```
 
-Peran (Groups): `student` (otomatis untuk pengguna baru), `staff` (pengelola materi), `admin`. Halaman memakai `@login_required` + `@allowed_users(...)`; API JSON memakai `@api_allowed_users(...)` (401/403, bukan redirect). Superuser selalu lolos.
+**Tampilan:** Bootstrap 4 + jQuery + Font Awesome 4 + DataTables + Chart.js, semuanya **lokal** di `main/static/main/` (lihat `LICENSES.txt`); tidak ada CDN, jadi jalan offline. Layout topbar + navbar + sidebar HP (mendorong isi halaman). Warna dari logo Lafaek (`--green`, `--yellow`, `--ink` di `app.css`). Tes menjaga agar tidak ada sumber eksternal.
+
+**Peran (Groups):** `estudante` (otomatis untuk pengguna baru), `staff`, `admin`. Menu siswa sengaja ringkas (Uma, Revisaun); staff menambah Painel, Estudante, Misaun; admin menambah Vaucher.
+
+| Halaman | estudante | staff | admin |
+|---|---|---|---|
+| `/`, `/mission/<slug>/`, `/review/` | ya | ya | ya |
+| `/staff/` (Painel), `/staff/siswa/`, `/staff/misaun/` | - | ya | ya |
+| `/staff/vaucher/` (buat vaucher) | - | - | ya |
+
+**API:** semua `APIView` dengan `SessionAuth401` (tanpa BasicAuthentication) + permission peran; galat seragam `{"error": kode}`; 401 bila belum masuk, 403 bila peran tidak cocok. Endpoint login tetap view biasa dengan CSRF. Data grafik berbentuk `{"label": [...], "obj": [...]}`.
 
 Menambah skenario baru = menambah data di `curriculum/seed.py` (tanpa mengubah kode).
 
@@ -76,4 +89,5 @@ Menambah skenario baru = menambah data di `curriculum/seed.py` (tanpa mengubah k
 4. **Suara Inggris di HP murah** bergantung pada perangkat; uji beberapa HP.
 5. Jalur Claude diuji terhadap server palsu dan belum dengan kunci API sungguhan.
 6. Aturan voucher/nilai tersimpan di Timor-Leste (Banco Central) perlu dicek sebelum dijual.
-7. Maskot: tepi PNG masih punya sedikit garis putih tipis; sebaiknya dirapikan desainer atau dibuat versi vektor/berlapis.
+7. Grafik dihitung di Python (bukan fungsi tanggal MySQL) karena MySQL/MariaDB sering belum memuat tabel zona waktu; jika Anda menambah laporan baru, hindari `__date`/`TruncDate` atau jalankan `mysql_tzinfo_to_sql`.
+8. Maskot: tepi PNG masih punya sedikit garis putih tipis; sebaiknya dirapikan desainer atau dibuat versi vektor/berlapis.

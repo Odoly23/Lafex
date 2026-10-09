@@ -3,8 +3,8 @@ from functools import wraps
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
 
-# Peran (Django Groups). Pengguna biasa = student; staff = pengelola materi; admin = penuh.
-ALL_ROLES = ['student', 'staff', 'admin']
+# Peran (Django Groups). Pengguna biasa = estudante; staff = pengelola materi; admin = penuh.
+ALL_ROLES = ['estudante', 'staff', 'admin']
 
 
 def unauthenticated_user(view_func):

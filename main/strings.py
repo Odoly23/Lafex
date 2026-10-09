@@ -92,4 +92,13 @@ TETUN = {
     'review_offline': 'Offline: hatudu dadus ne\'ebé rai tiha ona iha telemóvel.',
     'review_need_online': 'Konekta ba internet uluk atu rai revisaun iha telemóvel.',
     'review_saved': 'Rai tiha ona iha telemóvel.',
+
+
+    'tagline': 'Tutór Inglés',
+    'nav_dashboard': 'Painel',
+    'nav_students': 'Estudante',
+    'nav_missions': 'Misaun',
+    'nav_vouchers': 'Vaucher',
+    'nav_account': 'Konta',
+    'nav_menu': 'Menu',
 }

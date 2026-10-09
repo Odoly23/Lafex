@@ -7,12 +7,17 @@ from curriculum import views as curriculum_views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/auth/', include('users.urls')),
-    path('api/me/', billing_views.me),
-    path('api/redeem/', billing_views.redeem),
-    path('api/curriculum/', curriculum_views.curriculum),
+    path('api/me/', billing_views.APIMe.as_view()),
+    path('api/redeem/', billing_views.APIRedeem.as_view()),
+    path('api/curriculum/', curriculum_views.APICurriculum.as_view()),
+    path('api/report/', include('report.api.urls')),
     path('api/', include('tutor.api_urls')),
     path('', include('main.urls')),
     path('', include('tutor.urls')),
+    path('staff/', include('report.urls')),
+    path('staff/siswa/', include('users.staff_urls')),
+    path('staff/vaucher/', include('billing.staff_urls')),
+    path('staff/misaun/', include('curriculum.staff_urls')),
 ]
 
 handler403 = 'main.views.error_403'
